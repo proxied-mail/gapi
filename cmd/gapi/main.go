@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/abrouter/gapi/internal/app"
 	"github.com/abrouter/gapi/internal/app/provider"
 	"go.uber.org/fx"
 )
-import "github.com/abrouter/gapi/internal/app"
 
 func main() {
 	fx.New(
