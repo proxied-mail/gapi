@@ -15,7 +15,7 @@ RUN cd cmd/gapi && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuf
 
 
 # Moving the binary to the 'final Image' to make it smaller
-FROM alpine:latest as gapi
+FROM alpine:latest as final
 
 WORKDIR /app
 
@@ -30,4 +30,4 @@ RUN apk -U upgrade \
 # Exposes port 3000 because our program listens on that port
 EXPOSE 9900
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+ENTRYPOINT ["/usr/bin/dumb-init", "./gapi"]
