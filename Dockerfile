@@ -30,4 +30,5 @@ RUN apk -U upgrade \
 # Exposes port 3000 because our program listens on that port
 EXPOSE 9900
 
-ENTRYPOINT ["/usr/bin/dumb-init", "./gapi"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+CMD ["./gapi"]
