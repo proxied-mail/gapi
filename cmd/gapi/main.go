@@ -7,12 +7,17 @@ import (
 )
 
 func main() {
+
+	MysqlRwConnectionProvider := provider.MysqlRwConnectionProvider{}
+
 	fx.New(
 		fx.Provide(
 			provider.EchoProvider,
+			MysqlRwConnectionProvider.Connect,
 		),
 		fx.Invoke(
 			app.ConfigureApiRoutes,
+			MysqlRwConnectionProvider.Connect,
 			app.StartHttpServer,
 		),
 	).Run()
