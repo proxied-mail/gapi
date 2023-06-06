@@ -39,3 +39,6 @@ stop:
 
 start:
 	docker start $(project_name)
+
+run-local:
+	go run cmd/gapi
