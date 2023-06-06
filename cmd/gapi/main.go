@@ -14,6 +14,7 @@ func main() {
 		fx.Provide(
 			provider.EchoProvider,
 			MysqlRwConnectionProvider.Connect,
+			provider.OrmProvider,
 		),
 		fx.Invoke(
 			app.ConfigureApiRoutes,
