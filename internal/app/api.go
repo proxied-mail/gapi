@@ -10,5 +10,5 @@ func ConfigureApiRoutes(e *echo.Echo) {
 	e.GET("/gapi/hello", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.GET("/status", controller.Status)
+	e.GET("/gapi/status", controller.Status)
 }
