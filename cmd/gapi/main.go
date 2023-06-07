@@ -17,8 +17,8 @@ func main() {
 			provider.OrmProvider,
 		),
 		fx.Invoke(
-			app.ConfigureApiRoutes,
 			MysqlRwConnectionProvider.Connect,
+			app.ConfigureApiRoutes,
 			app.StartHttpServer,
 		),
 	).Run()
