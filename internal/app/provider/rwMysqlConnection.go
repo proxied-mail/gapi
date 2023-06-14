@@ -15,7 +15,7 @@ func (m MysqlRwConnectionProvider) Connect() *sql.DB {
 		return m.Connection
 	}
 
-	connection, err := sql.Open("mysql", "root:example@tcp(127.0.0.1:33072)/pm")
+	connection, err := sql.Open("mysql", "root:example@tcp(127.0.0.1:33072)/pm?parseTime=true")
 	if err != nil {
 		panic(err.Error())
 	}
