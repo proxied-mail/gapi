@@ -24,13 +24,16 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 
 		sps.assignVerificationHash(domain)
 
-		fmt.Println(domain.Status)
 		if domain.Status == models.DomainStatusNew {
 			sps.checkOwnership(domain)
 		}
 		if domain.Status == models.DomainStatusOwnershipVerified {
 			sps.checkMx(domain)
 		}
+		if domain.Status == models.DomainStatusMxSet {
+			sps.checkSpf(domain)
+		}
+
 	}
 
 	return cd
@@ -45,8 +48,23 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) {
 	for _, mx := range mxrc {
 		if mx.Host == "mx.proxiedmail.com." {
 
-			domain.GetModel().Status = models.DomainStatusMxSet
-			sps.Db.Save(domain.GetModel())
+			model := domain.GetModel()
+			model.Status = models.DomainStatusMxSet
+			sps.Db.Save(&model)
+		}
+	}
+}
+
+func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) {
+	txts, _ := net.LookupTXT(domain.Domain)
+	for _, txt := range txts {
+
+		fmt.Println(txt)
+		if txt == "v=spf1 include:proxiedmail.com ~all" {
+
+			model := domain.GetModel()
+			model.Status = models.DomainStatusSpfSet
+			sps.Db.Save(&model)
 		}
 	}
 }
