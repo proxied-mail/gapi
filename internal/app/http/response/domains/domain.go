@@ -15,6 +15,7 @@ type DomainResponse struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 	model            models.CustomDomain
 	VerificationHash string `json:"verification_hash"`
+	Spf              string `json:"spf"`
 }
 
 func (dr DomainResponse) GetModel() *models.CustomDomain {
@@ -35,6 +36,7 @@ func MapResponse(domain models.CustomDomain) *DomainResponse {
 		domain.CreatedAt,
 		domain.UpdatedAt,
 		domain,
+		"",
 		"",
 	}
 }

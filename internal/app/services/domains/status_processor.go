@@ -23,15 +23,16 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 	for _, domain = range cd {
 
 		sps.assignVerificationHash(domain)
+		sps.assignSpf(domain)
 
 		if domain.Status == models.DomainStatusNew {
-			sps.checkOwnership(domain)
+			domain.Status = sps.checkOwnership(domain)
 		}
 		if domain.Status == models.DomainStatusOwnershipVerified {
-			sps.checkMx(domain)
+			domain.Status = sps.checkMx(domain)
 		}
 		if domain.Status == models.DomainStatusMxSet {
-			sps.checkSpf(domain)
+			domain.Status = sps.checkSpf(domain)
 		}
 
 	}
@@ -43,7 +44,11 @@ func (sps StatusProcessorService) assignVerificationHash(domain *domains.DomainR
 	domain.VerificationHash = GetMD5Hash("hash" + strconv.Itoa(domain.UserId) + "domain-verification")
 }
 
-func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) {
+func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
+	domain.Spf = "v=spf1 include:proxiedmail.com ~all"
+}
+
+func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) int {
 	mxrc, _ := net.LookupMX(domain.Domain)
 	for _, mx := range mxrc {
 		if mx.Host == "mx.proxiedmail.com." {
@@ -51,25 +56,29 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) {
 			model := domain.GetModel()
 			model.Status = models.DomainStatusMxSet
 			sps.Db.Save(&model)
+			return model.Status
 		}
 	}
+	return domain.Status
 }
 
-func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) {
+func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
 	txts, _ := net.LookupTXT(domain.Domain)
 	for _, txt := range txts {
 
-		fmt.Println(txt)
-		if txt == "v=spf1 include:proxiedmail.com ~all" {
+		if txt == domain.Spf {
 
 			model := domain.GetModel()
 			model.Status = models.DomainStatusSpfSet
 			sps.Db.Save(&model)
+			return model.Status
 		}
 	}
+
+	return domain.Status
 }
 
-func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) {
+func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) int {
 	txts, _ := net.LookupTXT(domain.Domain)
 	txtStartWith := "proxiedmail-verification="
 
@@ -88,9 +97,10 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 			model := domain.GetModel()
 			model.Status = models.DomainStatusOwnershipVerified
 			sps.Db.Save(&model)
-
+			return model.Status
 		}
 	}
+	return domain.Status
 }
 
 func GetMD5Hash(text string) string {
