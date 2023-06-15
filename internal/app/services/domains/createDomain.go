@@ -3,6 +3,7 @@ package domains
 import (
 	"errors"
 	"github.com/abrouter/gapi/internal/app/models"
+	"github.com/abrouter/gapi/pkg/mxapi"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"time"
@@ -37,12 +38,22 @@ func (cds CreateDomainService) CreateDomain(
 		return emptyModel, errors.New("Domain is already exists")
 	}
 
+	mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(request.Domain, "1")
+	if err != nil || !mxapiReponseEntity.IsCreated {
+		return emptyModel, errors.New("Error creating domain on MX")
+	}
+	dkim, err2 := mxapi.RequestDkim(request.Domain)
+	if err2 != nil {
+		return emptyModel, err2
+	}
+
 	model := models.CustomDomain{
 		UserId:    userid,
 		Domain:    request.Domain,
 		Status:    models.DomainStatusNew,
 		IsShared:  false,
 		IsPremium: false,
+		DkimKey:   dkim.Content,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

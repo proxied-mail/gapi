@@ -11,6 +11,7 @@ type DomainResponse struct {
 	Status           int       `json:"status"`
 	IsShared         bool      `json:"is_shared"`
 	IsPremium        bool      `json:"IsPremium"`
+	DkimKey          string    `json:"DkimKey"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 	model            models.CustomDomain
@@ -33,6 +34,7 @@ func MapResponse(domain models.CustomDomain) *DomainResponse {
 		domain.Status,
 		domain.IsShared,
 		domain.IsPremium,
+		domain.DkimKey,
 		domain.CreatedAt,
 		domain.UpdatedAt,
 		domain,
