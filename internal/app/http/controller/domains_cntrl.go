@@ -55,7 +55,9 @@ func (dc DomainsController) List(
 
 	list := dc.CustomDomainsRepository.GetAllByUser(userModel.Id)
 	mappedList := domains2.MapResponseList(list)
-	dc.StatusProcessorService.ProcessStatus(mappedList)
+	if c.FormValue("ignoreProcessing") != "1" {
+		mappedList = dc.StatusProcessorService.ProcessStatus(mappedList)
+	}
 
 	resp, _ := json.Marshal(mappedList)
 	return c.String(http.StatusOK, string(resp))

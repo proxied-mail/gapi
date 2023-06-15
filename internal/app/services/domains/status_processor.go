@@ -3,7 +3,6 @@ package domains
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"github.com/abrouter/gapi/internal/app/http/response/domains"
 	"github.com/abrouter/gapi/internal/app/models"
 	"go.uber.org/fx"
@@ -34,6 +33,9 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 		if domain.Status == models.DomainStatusMxSet {
 			domain.Status = sps.checkSpf(domain)
 		}
+		if domain.Status == models.DomainStatusSpfSet {
+			domain.Status = sps.checkDkim(domain)
+		}
 
 	}
 
@@ -55,6 +57,21 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) int {
 
 			model := domain.GetModel()
 			model.Status = models.DomainStatusMxSet
+			sps.Db.Save(&model)
+			return model.Status
+		}
+	}
+	return domain.Status
+}
+
+func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int {
+	txts, _ := net.LookupTXT(domain.Domain)
+	for _, txt := range txts {
+
+		if txt == domain.DkimKey {
+
+			model := domain.GetModel()
+			model.Status = models.DomainStatusDkimSet
 			sps.Db.Save(&model)
 			return model.Status
 		}
@@ -84,15 +101,12 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 
 	for _, txt := range txts {
 
-		fmt.Println(txt)
 		if strings.Contains(txt, txtStartWith) {
 			splits := strings.Split(txt, txtStartWith)
 			code := splits[1]
 			if domain.VerificationHash != code {
 				continue
 			}
-
-			fmt.Println("verified")
 
 			model := domain.GetModel()
 			model.Status = models.DomainStatusOwnershipVerified
