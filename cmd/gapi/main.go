@@ -17,6 +17,7 @@ func main() {
 			provider.OrmProvider,
 		),
 		fx.Invoke(
+			provider.SetEnvDefaults,
 			MysqlRwConnectionProvider.Connect,
 			app.ConfigureApiRoutes,
 			app.StartHttpServer,

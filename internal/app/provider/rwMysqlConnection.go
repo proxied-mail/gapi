@@ -1,6 +1,9 @@
 package provider
 
-import "database/sql"
+import (
+	"database/sql"
+	"github.com/abrouter/gapi/internal/app"
+)
 import "fmt"
 import _ "github.com/go-sql-driver/mysql"
 
@@ -15,7 +18,7 @@ func (m MysqlRwConnectionProvider) Connect() *sql.DB {
 		return m.Connection
 	}
 
-	connection, err := sql.Open("mysql", "root:example@tcp(127.0.0.1:33072)/pm?parseTime=true")
+	connection, err := sql.Open("mysql", app.GetMysqlConnectionString())
 	if err != nil {
 		panic(err.Error())
 	}
