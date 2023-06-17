@@ -1,3 +1,3 @@
 consul-template --once \
-  -consul-addr=consul \
-  -template="/go/src/pmgo/build/env.ctmpl:/go/src/pmgo/config/env:exit 0"
+  -consul-addr=pm-consul:8500 \
+  -template="/app/build/env.ctmpl:/app/.env:exit 0"

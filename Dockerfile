@@ -22,22 +22,12 @@ WORKDIR /app
 
 # `boilerplate` should be replaced here as well
 COPY --from=build /go/src/pmgo/gapi .
-COPY --from=build /go/src/pmgo/build build
 
 
 # Add packages
 RUN apk -U upgrade \
     && apk add --no-cache dumb-init ca-certificates \
     && chmod +x /app/gapi
-
-ARG BUILD_ID=0
-ARG VERSION=0.0.1
-ARG CONSUL_TEMPLATE_VERSION=0.19.5
-ADD 	 https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip /usr/bin/
-RUN 	 unzip /usr/bin/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip && \
-    	 mv consul-template /usr/local/bin/consul-template && \
-    	 rm -rf /usr/bin/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip
-RUN chmod +x /app/build/consul.sh && /app/build/consul.sh
 
 # Exposes port 3000 because our program listens on that port
 EXPOSE 9900
