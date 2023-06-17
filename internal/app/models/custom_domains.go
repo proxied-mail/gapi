@@ -15,6 +15,7 @@ type CustomDomain struct {
 	Status    int       `json:"status"`
 	IsShared  bool      `json:"is_shared"`
 	IsPremium bool      `json:"IsPremium"`
+	DkimKey   string    `json:"DkimKey"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
