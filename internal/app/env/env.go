@@ -1,11 +1,33 @@
 package env
 
-import "os"
+import (
+	"github.com/hashicorp/go-envparse"
+	"os"
+	"strings"
+)
+
+var env map[string]string
+
+func ReadEnv() map[string]string {
+	file, err := os.ReadFile("../../.env")
+	if err != nil {
+		panic("Error reading .env file")
+	}
+	fileContent := string(file)
+
+	var err2 error
+	env, err2 = envparse.Parse(strings.NewReader(fileContent))
+	if err2 != nil {
+		panic(err2)
+	}
+
+	return env
+}
 
 func GetMysqlConnectionString() string {
-	return os.Getenv("DB_CONNECTION")
+	return env["DB_CONNECTION"]
 }
 
 func GetPapiHost() string {
-	return os.Getenv("PAPI_HOST")
+	return env["PAPI_HOST"]
 }

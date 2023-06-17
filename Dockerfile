@@ -27,6 +27,11 @@ RUN apk -U upgrade \
     && apk add --no-cache dumb-init ca-certificates \
     && chmod +x /app/gapi
 
+ADD 	 https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip /usr/bin/
+RUN 	 unzip /usr/bin/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip && \
+    	 mv consul-template /usr/local/bin/consul-template && \
+    	 rm -rf /usr/bin/consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip
+
 # Exposes port 3000 because our program listens on that port
 EXPOSE 9900
 
