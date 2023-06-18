@@ -33,4 +33,4 @@ RUN apk -U upgrade \
 EXPOSE 9900
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["./gapi"]
+CMD ["./gapi", "-config", "/app/config/.env"]

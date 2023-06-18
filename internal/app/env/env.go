@@ -1,6 +1,7 @@
 package env
 
 import (
+	"github.com/abrouter/gapi/internal/app/boot"
 	"github.com/hashicorp/go-envparse"
 	"os"
 	"strings"
@@ -9,9 +10,9 @@ import (
 var env map[string]string
 
 func ReadEnv() map[string]string {
-	file, err := os.ReadFile("../../.env")
+	file, err := os.ReadFile(boot.GetConfigFilePath())
 	if err != nil {
-		panic("Error reading .env file")
+		panic("Error reading .env file by path" + boot.GetConfigFilePath())
 	}
 	fileContent := string(file)
 
