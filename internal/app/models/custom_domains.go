@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 const DomainStatusNew = 1
 const DomainStatusOwnershipVerified = 2
@@ -9,13 +12,14 @@ const DomainStatusSpfSet = 4
 const DomainStatusDkimSet = 5
 
 type CustomDomain struct {
-	ID        int       `json:"id"`
-	UserId    int       `json:"user_id"`
-	Domain    string    `json:"domain"`
-	Status    int       `json:"status"`
-	IsShared  bool      `json:"is_shared"`
-	IsPremium bool      `json:"IsPremium"`
-	DkimKey   string    `json:"DkimKey"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID           int            `json:"id"`
+	UserId       int            `json:"user_id"`
+	Domain       string         `json:"domain"`
+	Status       int            `json:"status"`
+	IsShared     bool           `json:"is_shared"`
+	IsPremium    bool           `json:"IsPremium"`
+	SmtpPassword sql.NullString `json:"smtp_password"`
+	DkimKey      string         `json:"DkimKey"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
 }

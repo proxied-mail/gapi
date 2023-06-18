@@ -1,11 +1,14 @@
 package domains
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/pkg/mxapi"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -53,6 +56,9 @@ func (cds CreateDomainService) CreateDomain(
 		Status:    models.DomainStatusNew,
 		IsShared:  false,
 		IsPremium: false,
+		SmtpPassword: sql.NullString{
+			String: cds.generateRandomPass(),
+		},
 		DkimKey:   dkim.Content,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -60,4 +66,18 @@ func (cds CreateDomainService) CreateDomain(
 	cds.Db.Create(&model)
 
 	return model, nil
+}
+
+func (cds CreateDomainService) generateRandomPass() string {
+	rand.Seed(time.Now().UnixNano())
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
+		"abcdefghijklmnopqrstuvwxyzåäö" +
+		"0123456789")
+	length := 8
+	var b strings.Builder
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[rand.Intn(len(chars))])
+	}
+	str := b.String()
+	return str
 }
