@@ -58,6 +58,7 @@ func (cds CreateDomainService) CreateDomain(
 		IsPremium: false,
 		SmtpPassword: sql.NullString{
 			String: cds.generateRandomPass(),
+			Valid:  true,
 		},
 		DkimKey:   dkim.Content,
 		CreatedAt: time.Now(),
@@ -70,10 +71,10 @@ func (cds CreateDomainService) CreateDomain(
 
 func (cds CreateDomainService) generateRandomPass() string {
 	rand.Seed(time.Now().UnixNano())
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
-		"abcdefghijklmnopqrstuvwxyzåäö" +
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+		"abcdefghijklmnopqrstuvwxyz" +
 		"0123456789")
-	length := 8
+	length := 20
 	var b strings.Builder
 	for i := 0; i < length; i++ {
 		b.WriteRune(chars[rand.Intn(len(chars))])

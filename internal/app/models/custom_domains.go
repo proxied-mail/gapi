@@ -18,7 +18,7 @@ type CustomDomain struct {
 	Status       int            `json:"status"`
 	IsShared     bool           `json:"is_shared"`
 	IsPremium    bool           `json:"IsPremium"`
-	SmtpPassword sql.NullString `json:"smtp_password"`
+	SmtpPassword sql.NullString `json:"SmtpPassword"`
 	DkimKey      string         `json:"DkimKey"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
