@@ -1,6 +1,9 @@
 package papi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/abrouter/gapi/internal/app/env"
+)
 
 var meCacheByAuth map[string]PapiUserStruct = make(map[string]PapiUserStruct)
 
@@ -19,7 +22,7 @@ func (userStruct PapiUserStruct) IsAuthenticated() bool {
 
 func Me(auth string) (PapiUserStruct, error) {
 	Req := PapiRequest{
-		Host: "http://localhost:904",
+		Host: env.GetPapiHost(),
 	}
 	resp, err := Req.GetRequestWithAuth("/api/v1/users/me", auth)
 	if err != nil {

@@ -42,3 +42,7 @@ start:
 
 run-local:
 	go run cmd/gapi
+
+consul:
+	docker exec -it $(project_name) /go/src/pmgo/build/consul.sh
+

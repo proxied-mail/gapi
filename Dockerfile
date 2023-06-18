@@ -4,6 +4,7 @@ FROM golang:1.19 AS build
 # `boilerplate` should be replaced with your project name
 WORKDIR /go/src/pmgo
 
+
 # Copy all the Code and stuff to compile everything
 COPY . .
 
@@ -22,6 +23,7 @@ WORKDIR /app
 # `boilerplate` should be replaced here as well
 COPY --from=build /go/src/pmgo/gapi .
 
+
 # Add packages
 RUN apk -U upgrade \
     && apk add --no-cache dumb-init ca-certificates \
@@ -31,4 +33,4 @@ RUN apk -U upgrade \
 EXPOSE 9900
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["./gapi"]
+CMD ["./gapi", "-config", "/app/config/.env"]
