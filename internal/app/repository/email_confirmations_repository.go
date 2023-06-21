@@ -16,11 +16,11 @@ func (ecr EmailConfirmationsRepository) GetAllConfirmedEmails(userId int) []stri
 	ecr.Db.Model(models.EmailConfirmations{}).Where(models.EmailConfirmations{
 		UserId:    userId,
 		Confirmed: 1,
-	}).Find(list)
+	}).Find(&list)
 	var emailsList []string
 	var model models.EmailConfirmations
 
-	for model, _ = range list {
+	for _, model = range list {
 		emailsList = append(emailsList, model.Email)
 	}
 	return emailsList
