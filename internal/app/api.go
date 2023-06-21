@@ -11,6 +11,7 @@ import (
 type api struct {
 	fx.In
 	controller.DomainsController
+	controller.RealEmailsCntrl
 }
 
 func ConfigureApiRoutes(

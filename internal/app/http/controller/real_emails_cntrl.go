@@ -6,10 +6,12 @@ import (
 	"github.com/abrouter/gapi/internal/app/http/response/email_confirmations"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/fx"
 	"net/http"
 )
 
 type RealEmailsCntrl struct {
+	fx.In
 	UserRepository               repository.UserRepository
 	EmailConfirmationsRepository repository.EmailConfirmationsRepository
 }
