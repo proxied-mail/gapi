@@ -16,3 +16,13 @@ func (cdr CustomDomainsRepository) GetAllByUser(UserId int) []models.CustomDomai
 	cdr.Db.Model(models.CustomDomain{}).Where(models.CustomDomain{UserId: UserId}).Find(&list)
 	return list
 }
+
+func (cdr CustomDomainsRepository) UserHasDomain(userId int, domain string) bool {
+	var count int64
+	cdr.Db.Model(models.CustomDomain{}).Where(models.CustomDomain{
+		UserId: userId,
+		Domain: domain,
+	}).Count(&count)
+
+	return count > 0
+}
