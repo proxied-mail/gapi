@@ -41,7 +41,8 @@ func (cds CreateDomainService) CreateDomain(
 		return emptyModel, errors.New("Domain is already exists")
 	}
 
-	mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(request.Domain, "1")
+	pass := cds.generateRandomPass()
+	mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(request.Domain, pass)
 	if err != nil || !mxapiReponseEntity.IsCreated {
 		return emptyModel, errors.New("Error creating domain on MX")
 	}
@@ -57,7 +58,7 @@ func (cds CreateDomainService) CreateDomain(
 		IsShared:  false,
 		IsPremium: false,
 		SmtpPassword: sql.NullString{
-			String: cds.generateRandomPass(),
+			String: pass,
 			Valid:  true,
 		},
 		DkimKey:   dkim.Content,
