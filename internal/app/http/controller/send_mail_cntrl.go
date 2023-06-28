@@ -29,6 +29,7 @@ func (smc SendMailCntrl) Create(c echo.Context) error {
 	if err1 != nil {
 		resp, _ := json.Marshal(ErrorResponse{
 			Message: "Invalid json",
+			Status:  false,
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
@@ -37,6 +38,7 @@ func (smc SendMailCntrl) Create(c echo.Context) error {
 	if err2 != nil {
 		resp, _ := json.Marshal(ErrorResponse{
 			Message: "Invalid json",
+			Status:  false,
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
@@ -46,6 +48,7 @@ func (smc SendMailCntrl) Create(c echo.Context) error {
 	if valid != nil {
 		resp, _ := json.Marshal(ErrorResponse{
 			Message: valid.Error(),
+			Status:  false,
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}

@@ -12,7 +12,8 @@ import (
 )
 
 type ErrorResponse struct {
-	Message string
+	Message string `json:"message"`
+	Status  bool   `json:"status"`
 }
 
 type DomainsController struct {
