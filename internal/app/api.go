@@ -12,6 +12,7 @@ type api struct {
 	fx.In
 	controller.DomainsController
 	controller.RealEmailsCntrl
+	controller.SendMailCntrl
 }
 
 func ConfigureApiRoutes(
@@ -23,6 +24,7 @@ func ConfigureApiRoutes(
 	})
 	e.GET("/gapi/status", controller.Status)
 	e.POST("/gapi/domains", api.DomainsController.Create, middlewares.AuthMiddleware)
+	e.POST("/gapi/send-mail", api.SendMailCntrl.Create, middlewares.AuthMiddleware)
 	e.GET("/gapi/domains", api.DomainsController.List, middlewares.AuthMiddleware)
 	e.GET("/gapi/verified-emails-list", api.RealEmailsCntrl.Get, middlewares.AuthMiddleware)
 }
