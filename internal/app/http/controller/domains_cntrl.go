@@ -39,6 +39,7 @@ func (dc DomainsController) Create(
 	if err != nil {
 		resp, _ := json.Marshal(ErrorResponse{
 			Message: err.Error(),
+			Status:  false,
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
