@@ -47,7 +47,7 @@ func (sps StatusProcessorService) assignVerificationHash(domain *domains.DomainR
 }
 
 func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
-	domain.Spf = "v=spf1 include:proxiedmail.com ~all"
+	domain.Spf = "v=spf1 include:spf.proxiedmail.com ~all"
 }
 
 func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) int {
