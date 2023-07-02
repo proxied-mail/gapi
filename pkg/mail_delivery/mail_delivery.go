@@ -17,6 +17,7 @@ type SendMailCommand struct {
 	Subject string `json:"subject" validate:"required"`
 	Type    string `json:"type" validate:"required"`
 	Body    string `json:"body" validate:"required"`
+	ReplyTo string `json:"reply_to"`
 }
 
 func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error {
@@ -24,6 +25,9 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	m.SetHeader("From", sendMailCommand.From)
 	m.SetHeader("To", sendMailCommand.To)
 	m.SetHeader("Subject", sendMailCommand.Subject)
+	if sendMailCommand.ReplyTo != "" {
+		m.SetHeader("Reply-To", sendMailCommand.ReplyTo)
+	}
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
 
 	d := gomail.NewDialer(authData.Host, authData.Port, authData.Username, authData.Password)
