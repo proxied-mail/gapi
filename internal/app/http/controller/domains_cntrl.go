@@ -43,7 +43,7 @@ func (dc DomainsController) Create(
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
-	model2 := domains2.MapResponse(model)
+	model2 := domains2.MapResponse(userModel, model)
 
 	resp, _ := json.Marshal(model2)
 	return c.String(http.StatusOK, string(resp))
@@ -55,7 +55,7 @@ func (dc DomainsController) List(
 	currentUser := http2.CurrentUser(c)
 	userModel := dc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 	list := dc.CustomDomainsRepository.GetAllAvailable(userModel.Id)
-	mappedList := domains2.MapResponseList(list)
+	mappedList := domains2.MapResponseList(userModel, list)
 	resp, _ := json.Marshal(mappedList)
 	return c.String(http.StatusOK, string(resp))
 }
@@ -67,7 +67,7 @@ func (dc DomainsController) ListCustom(
 	userModel := dc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 
 	list := dc.CustomDomainsRepository.GetAllByUser(userModel.Id)
-	mappedList := domains2.MapResponseList(list)
+	mappedList := domains2.MapResponseList(userModel, list)
 	if c.FormValue("ignoreProcessing") != "1" {
 		mappedList = dc.StatusProcessorService.ProcessStatus(mappedList)
 	}

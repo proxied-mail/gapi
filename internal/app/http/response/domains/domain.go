@@ -27,14 +27,19 @@ func (dr DomainResponse) SetVerificationHash(hash string) {
 	dr.VerificationHash = hash
 }
 
-func MapResponse(domain models.CustomDomain) *DomainResponse {
+func MapResponse(userModel models.UserModel, domain models.CustomDomain) *DomainResponse {
+	dkimKey := domain.DkimKey
+	if userModel.Id != domain.UserId {
+		dkimKey = ""
+	}
+
 	return &DomainResponse{
 		0,
 		domain.Domain,
 		domain.Status,
 		domain.IsShared,
 		domain.IsPremium,
-		domain.DkimKey,
+		dkimKey,
 		domain.CreatedAt,
 		domain.UpdatedAt,
 		domain,
@@ -43,11 +48,11 @@ func MapResponse(domain models.CustomDomain) *DomainResponse {
 	}
 }
 
-func MapResponseList(domains []models.CustomDomain) []*DomainResponse {
+func MapResponseList(userModel models.UserModel, domains []models.CustomDomain) []*DomainResponse {
 	var model models.CustomDomain
 	var newMap []*DomainResponse
 	for _, model = range domains {
-		newMap = append(newMap, MapResponse(model))
+		newMap = append(newMap, MapResponse(userModel, model))
 	}
 
 	return newMap
