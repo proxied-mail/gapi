@@ -26,3 +26,13 @@ func (cdr CustomDomainsRepository) UserHasDomain(userId int, domain string) bool
 
 	return count > 0
 }
+
+func (cdr CustomDomainsRepository) GetAllAvailable(userId int) []models.CustomDomain {
+	var list []models.CustomDomain
+	cdr.Db.Model(models.CustomDomain{}).Where(models.CustomDomain{
+		UserId: userId,
+	}).Or(models.CustomDomain{
+		IsShared: true,
+	}).Find(&list)
+	return list
+}

@@ -54,6 +54,17 @@ func (dc DomainsController) List(
 ) error {
 	currentUser := http2.CurrentUser(c)
 	userModel := dc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
+	list := dc.CustomDomainsRepository.GetAllAvailable(userModel.Id)
+	mappedList := domains2.MapResponseList(list)
+	resp, _ := json.Marshal(mappedList)
+	return c.String(http.StatusOK, string(resp))
+}
+
+func (dc DomainsController) ListCustom(
+	c echo.Context,
+) error {
+	currentUser := http2.CurrentUser(c)
+	userModel := dc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 
 	list := dc.CustomDomainsRepository.GetAllByUser(userModel.Id)
 	mappedList := domains2.MapResponseList(list)
