@@ -9,11 +9,11 @@ type DomainResponse struct {
 	UserId           int       `json:"user_id"`
 	Domain           string    `json:"domain"`
 	Status           int       `json:"status"`
-	IsShared         bool      `json:"is_shared"`
-	IsPremium        bool      `json:"IsPremium"`
-	DkimKey          string    `json:"DkimKey"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	IsShared         bool      `json:"isShared"`
+	IsPremium        bool      `json:"isPremium"`
+	DkimKey          string    `json:"dkimKey"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
 	model            models.CustomDomain
 	VerificationHash string `json:"verification_hash"`
 	Spf              string `json:"spf"`
@@ -27,14 +27,19 @@ func (dr DomainResponse) SetVerificationHash(hash string) {
 	dr.VerificationHash = hash
 }
 
-func MapResponse(domain models.CustomDomain) *DomainResponse {
+func MapResponse(userModel models.UserModel, domain models.CustomDomain) *DomainResponse {
+	dkimKey := domain.DkimKey
+	if userModel.Id != domain.UserId {
+		dkimKey = ""
+	}
+
 	return &DomainResponse{
-		domain.UserId,
+		0,
 		domain.Domain,
 		domain.Status,
 		domain.IsShared,
 		domain.IsPremium,
-		domain.DkimKey,
+		dkimKey,
 		domain.CreatedAt,
 		domain.UpdatedAt,
 		domain,
@@ -43,11 +48,11 @@ func MapResponse(domain models.CustomDomain) *DomainResponse {
 	}
 }
 
-func MapResponseList(domains []models.CustomDomain) []*DomainResponse {
+func MapResponseList(userModel models.UserModel, domains []models.CustomDomain) []*DomainResponse {
 	var model models.CustomDomain
 	var newMap []*DomainResponse
 	for _, model = range domains {
-		newMap = append(newMap, MapResponse(model))
+		newMap = append(newMap, MapResponse(userModel, model))
 	}
 
 	return newMap
