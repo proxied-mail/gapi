@@ -2,6 +2,7 @@ package mail_delivery
 
 import (
 	"gopkg.in/gomail.v2"
+	"io"
 )
 
 type SendMailAuthData struct {
@@ -12,12 +13,21 @@ type SendMailAuthData struct {
 }
 
 type SendMailCommand struct {
-	From    string `json:"from" validate:"required"`
-	To      string `json:"to" validate:"required"`
-	Subject string `json:"subject" validate:"required"`
-	Type    string `json:"type" validate:"required"`
-	Body    string `json:"body" validate:"required"`
-	ReplyTo string `json:"reply_to"`
+	From        string       `json:"from" validate:"required"`
+	To          string       `json:"to" validate:"required"`
+	Subject     string       `json:"subject" validate:"required"`
+	Type        string       `json:"type" validate:"required"`
+	Body        string       `json:"body" validate:"required"`
+	ReplyTo     string       `json:"reply_to"`
+	Attachments []Attachment `json:"attachments"`
+}
+
+type Attachment struct {
+	Name     string `json:"name"`
+	MimeType string `json:"mimeType"`
+	Size     int    `json:"size"`
+	Content  string `json:"content"`
+	Url      string `json:"url"`
 }
 
 func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error {
@@ -29,6 +39,16 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		m.SetHeader("Reply-To", sendMailCommand.ReplyTo)
 	}
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
+	for _, attachment := range sendMailCommand.Attachments {
+		m.Attach(
+			attachment.Name,
+			gomail.SetCopyFunc(func(w io.Writer) error {
+				_, err := w.Write([]byte(attachment.Content))
+				return err
+			}),
+			gomail.SetHeader(map[string][]string{"Content-Type": {attachment.MimeType}}),
+		)
+	}
 
 	d := gomail.NewDialer(authData.Host, authData.Port, authData.Username, authData.Password)
 

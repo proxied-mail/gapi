@@ -56,7 +56,10 @@ func (smc SendMailCntrl) Create(c echo.Context) error {
 	domain := strings.Split(req.Auth.Username, "@")[1]
 	currentUser := http2.CurrentUser(c)
 	userModel := smc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
-	smc.CustomDomainsRepository.UserHasDomain(userModel.Id, domain)
+	hasDomain := smc.CustomDomainsRepository.UserHasDomain(userModel.Id, domain)
+	if !hasDomain {
+		return c.String(http.StatusOK, "Don't have an access to this domain")
+	}
 
 	sendMailResult := mail_delivery.SendMail(req.Auth, req.Mail)
 	if sendMailResult != nil {
