@@ -2,6 +2,7 @@ package mail_delivery
 
 import (
 	b64 "encoding/base64"
+	"fmt"
 	"gopkg.in/gomail.v2"
 	"io"
 )
@@ -42,6 +43,7 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
 	for _, attachment := range sendMailCommand.Attachments {
 		content, _ := b64.StdEncoding.DecodeString(attachment.Content)
+		fmt.Println("decoding base64 bla bla")
 		m.Attach(
 			attachment.Name,
 			gomail.SetCopyFunc(func(w io.Writer) error {
