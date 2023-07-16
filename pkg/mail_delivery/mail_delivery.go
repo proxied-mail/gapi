@@ -1,6 +1,7 @@
 package mail_delivery
 
 import (
+	b64 "encoding/base64"
 	"gopkg.in/gomail.v2"
 	"io"
 )
@@ -40,10 +41,11 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	}
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
 	for _, attachment := range sendMailCommand.Attachments {
+		content, _ := b64.StdEncoding.DecodeString(attachment.Content)
 		m.Attach(
 			attachment.Name,
 			gomail.SetCopyFunc(func(w io.Writer) error {
-				_, err := w.Write([]byte(attachment.Content))
+				_, err := w.Write(content)
 				return err
 			}),
 			gomail.SetHeader(map[string][]string{"Content-Type": {attachment.MimeType}}),
