@@ -15,6 +15,7 @@ type CustomDomain struct {
 	ID           int            `json:"id"`
 	UserId       int            `json:"user_id"`
 	Domain       string         `json:"domain"`
+	DisplayName  string         `json:"display_name"`
 	Status       int            `json:"status"`
 	IsShared     bool           `json:"is_shared"`
 	IsPremium    bool           `json:"IsPremium"`

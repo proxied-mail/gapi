@@ -8,6 +8,7 @@ import (
 type DomainResponse struct {
 	UserId           int       `json:"user_id"`
 	Domain           string    `json:"domain"`
+	DisplayName      string    `json:"display_name"`
 	Status           int       `json:"status"`
 	IsShared         bool      `json:"isShared"`
 	IsPremium        bool      `json:"isPremium"`
@@ -36,6 +37,7 @@ func MapResponse(userModel models.UserModel, domain models.CustomDomain) *Domain
 	return &DomainResponse{
 		0,
 		domain.Domain,
+		domain.DisplayName,
 		domain.Status,
 		domain.IsShared,
 		domain.IsPremium,
