@@ -31,6 +31,7 @@ func (cdr CustomDomainsRepository) GetAllAvailable(userId int) []models.CustomDo
 	var list []models.CustomDomain
 	cdr.Db.Model(models.CustomDomain{}).Where(models.CustomDomain{
 		UserId: userId,
+		Status: 5,
 	}).Or(models.CustomDomain{
 		IsShared: true,
 	}).Find(&list)
