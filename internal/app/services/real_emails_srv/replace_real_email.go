@@ -17,8 +17,8 @@ func (rre ReplaceRealEmail) Replace(
 	newEmail string,
 ) {
 	model := models.RealAddress{}
-	uQuery := "user_id = ?"
+	uQuery := "user_id = ? And real_address = ?"
 	realAddrQuery := "real_address = ?"
 
-	rre.Db.Model(&model).Where(uQuery, user.Id).Where(realAddrQuery, oldEmail).Update(realAddrQuery, newEmail)
+	rre.Db.Model(&model).Where(uQuery, user.Id).Where(realAddrQuery, oldEmail).Update("real_address", newEmail)
 }

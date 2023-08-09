@@ -10,6 +10,7 @@ import (
 	"github.com/abrouter/gapi/internal/app/services/real_emails_srv"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
+	validator2 "gopkg.in/go-playground/validator.v9"
 	"io"
 	"net/http"
 )
@@ -47,6 +48,17 @@ func (rec RealEmailsCntrl) Update(c echo.Context) error {
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
 	json2.Unmarshal(reqBody, &request)
+
+	valid := validator2.New().Struct(request)
+
+	if valid != nil {
+		resp, _ := json2.Marshal(ErrorResponse{
+			Message: valid.Error(),
+			Status:  false,
+		})
+		return c.String(http.StatusUnprocessableEntity, string(resp))
+	}
+
 	rec.ReplaceRealEmail.Replace(
 		userModel,
 		request.OldEmail,
