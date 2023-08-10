@@ -31,6 +31,18 @@ func (cds CreateDomainService) CreateDomain(
 		return emptyModel, errors.New("Empty domain")
 	}
 
+	restrictedDomains := []string{
+		"icloud",
+		"gmail",
+		"outlook",
+	}
+
+	for i, _ := range restrictedDomains {
+		if strings.Contains(request.Domain, restrictedDomains[i]) {
+			return emptyModel, errors.New("Domain is restricted")
+		}
+	}
+
 	condition := models.CustomDomain{
 		Domain: request.Domain,
 	}
