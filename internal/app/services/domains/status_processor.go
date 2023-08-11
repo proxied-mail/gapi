@@ -29,6 +29,7 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 		if domain.Status == models.DomainStatusNew {
 			domain.Status, _ = sps.checkOwnership(domain)
 		}
+
 		if domain.Status == models.DomainStatusOwnershipVerified {
 			domain.Status = sps.checkMx(domain)
 		}
@@ -122,6 +123,7 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 					return 0, err2
 				}
 				model.DkimKey = dkim.Content
+				domain.DkimKey = dkim.Content
 			}
 
 			model.Status = models.DomainStatusOwnershipVerified

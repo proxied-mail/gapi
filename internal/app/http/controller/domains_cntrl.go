@@ -68,6 +68,7 @@ func (dc DomainsController) ListCustom(
 
 	list := dc.CustomDomainsRepository.GetAllByUser(userModel.Id)
 	mappedList := domains2.MapResponseList(userModel, list)
+
 	if c.FormValue("ignoreProcessing") != "1" {
 		mappedList = dc.StatusProcessorService.ProcessStatus(mappedList)
 	}
