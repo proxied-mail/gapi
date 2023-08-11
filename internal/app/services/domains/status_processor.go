@@ -130,7 +130,8 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 			return model.Status, nil
 		}
 	}
-	return domain.Status
+
+	return domain.Status, nil
 }
 
 func GetMD5Hash(text string) string {
