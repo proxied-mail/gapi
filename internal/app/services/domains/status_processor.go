@@ -3,8 +3,10 @@ package domains
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
 	"github.com/abrouter/gapi/internal/app/http/response/domains"
 	"github.com/abrouter/gapi/internal/app/models"
+	"github.com/abrouter/gapi/pkg/mxapi"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"net"
@@ -25,7 +27,7 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 		sps.assignSpf(domain)
 
 		if domain.Status == models.DomainStatusNew {
-			domain.Status = sps.checkOwnership(domain)
+			domain.Status, _ = sps.checkOwnership(domain)
 		}
 		if domain.Status == models.DomainStatusOwnershipVerified {
 			domain.Status = sps.checkMx(domain)
@@ -95,7 +97,7 @@ func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
 	return domain.Status
 }
 
-func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) int {
+func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) (int, error) {
 	txts, _ := net.LookupTXT(domain.Domain)
 	txtStartWith := "proxiedmail-verification="
 
@@ -109,12 +111,27 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 			}
 
 			model := domain.GetModel()
+
+			if model.DkimKey == "" {
+				mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
+				if err != nil || !mxapiReponseEntity.IsCreated {
+					return 0, errors.New("Error creating domain on MX")
+				}
+				dkim, err2 := mxapi.RequestDkim(model.Domain)
+				if err2 != nil {
+					return 0, err2
+				}
+				model.DkimKey = dkim.Content
+			}
+
 			model.Status = models.DomainStatusOwnershipVerified
 			sps.Db.Save(&model)
-			return model.Status
+
+			return model.Status, nil
 		}
 	}
-	return domain.Status
+
+	return domain.Status, nil
 }
 
 func GetMD5Hash(text string) string {

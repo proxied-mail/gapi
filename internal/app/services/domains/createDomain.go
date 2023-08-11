@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/abrouter/gapi/internal/app/models"
-	"github.com/abrouter/gapi/pkg/mxapi"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"math/rand"
@@ -54,14 +53,6 @@ func (cds CreateDomainService) CreateDomain(
 	}
 
 	pass := cds.generateRandomPass()
-	mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(request.Domain, pass)
-	if err != nil || !mxapiReponseEntity.IsCreated {
-		return emptyModel, errors.New("Error creating domain on MX")
-	}
-	dkim, err2 := mxapi.RequestDkim(request.Domain)
-	if err2 != nil {
-		return emptyModel, err2
-	}
 
 	model := models.CustomDomain{
 		UserId:    userid,
@@ -73,7 +64,7 @@ func (cds CreateDomainService) CreateDomain(
 			String: pass,
 			Valid:  true,
 		},
-		DkimKey:   dkim.Content,
+		DkimKey:   "",
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
