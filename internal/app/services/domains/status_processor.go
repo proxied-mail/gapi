@@ -112,17 +112,19 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 
 			model := domain.GetModel()
 
-			mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
-			if err != nil || !mxapiReponseEntity.IsCreated {
-				return 0, errors.New("Error creating domain on MX")
-			}
-			dkim, err2 := mxapi.RequestDkim(model.Domain)
-			if err2 != nil {
-				return 0, err2
+			if model.DkimKey == "" {
+				mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
+				if err != nil || !mxapiReponseEntity.IsCreated {
+					return 0, errors.New("Error creating domain on MX")
+				}
+				dkim, err2 := mxapi.RequestDkim(model.Domain)
+				if err2 != nil {
+					return 0, err2
+				}
+				model.DkimKey = dkim.Content
 			}
 
 			model.Status = models.DomainStatusOwnershipVerified
-			model.DkimKey = dkim.Content
 			sps.Db.Save(&model)
 
 			return model.Status, nil
