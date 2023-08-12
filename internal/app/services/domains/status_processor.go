@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/abrouter/gapi/internal/app/http/response/domains"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/pkg/mxapi"
@@ -84,10 +85,13 @@ func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int 
 
 func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
 	txts, _ := net.LookupTXT(domain.Domain)
+
+	fmt.Println("Debug for " + domain.Domain)
 	for _, txt := range txts {
 
-		if txt == domain.Spf {
+		fmt.Println(txt)
 
+		if txt == domain.Spf {
 			model := domain.GetModel()
 			model.Status = models.DomainStatusSpfSet
 			sps.Db.Save(&model)
