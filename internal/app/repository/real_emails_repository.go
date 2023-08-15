@@ -16,6 +16,6 @@ func (rer RealEmailsRepository) GetAllUniqueByUser(userId int) []models.RealAddr
 
 	rer.Db.Model(models.RealAddress{}).Where(models.RealAddress{
 		UserId: userId,
-	}).Group("real_address").Find(&list)
+	}).Where("deleted_at is null").Group("real_address").Find(&list)
 	return list
 }
