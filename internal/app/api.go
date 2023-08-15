@@ -28,5 +28,6 @@ func ConfigureApiRoutes(
 	e.POST("/gapi/real-emails/replace", api.RealEmailsCntrl.Update, middlewares.AuthMiddleware)
 	e.GET("/gapi/available-domains", api.DomainsController.List, middlewares.AuthMiddleware)
 	e.GET("/gapi/custom-domains", api.DomainsController.ListCustom, middlewares.AuthMiddleware) //custom domains
-	e.GET("/gapi/verified-emails-list", api.RealEmailsCntrl.Get, middlewares.AuthMiddleware)
+	e.GET("/gapi/verified-emails-list", api.RealEmailsCntrl.GetVerified, middlewares.AuthMiddleware)
+	e.GET("/gapi/real-emails", api.RealEmailsCntrl.GetAll, middlewares.AuthMiddleware)
 }
