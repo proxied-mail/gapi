@@ -6,6 +6,7 @@ import (
 	"github.com/abrouter/gapi/internal/app/http/request/real_emails"
 	"github.com/abrouter/gapi/internal/app/http/response/common"
 	"github.com/abrouter/gapi/internal/app/http/response/email_confirmations"
+	"github.com/abrouter/gapi/internal/app/http/response/real_emails_rsp"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/real_emails_srv"
 	"github.com/labstack/echo/v4"
@@ -19,10 +20,23 @@ type RealEmailsCntrl struct {
 	fx.In
 	UserRepository               repository.UserRepository
 	EmailConfirmationsRepository repository.EmailConfirmationsRepository
+	RealEmailsRepository         repository.RealEmailsRepository
 	ReplaceRealEmail             real_emails_srv.ReplaceRealEmail
 }
 
-func (rec RealEmailsCntrl) Get(c echo.Context) error {
+func (rec RealEmailsCntrl) GetAll(c echo.Context) error {
+	currentUser := http2.CurrentUser(c)
+	userModel := rec.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
+
+	emailsList := rec.RealEmailsRepository.GetAllUniqueByUser(userModel.Id)
+	responseModel := real_emails_rsp.MapResponse(emailsList)
+
+	resp, _ := json2.Marshal(responseModel)
+
+	return c.String(http.StatusOK, string(resp))
+}
+
+func (rec RealEmailsCntrl) GetVerified(c echo.Context) error {
 	currentUser := http2.CurrentUser(c)
 	userModel := rec.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 	emailsList := rec.EmailConfirmationsRepository.GetAllConfirmedEmails(userModel.Id)
