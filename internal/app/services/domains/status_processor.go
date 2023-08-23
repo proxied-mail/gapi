@@ -32,7 +32,7 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 		}
 
 		if domain.Status == models.DomainStatusOwnershipVerified {
-			domain.Status = sps.checkMx(domain)
+			domain.Status, _ = sps.checkMx(domain)
 		}
 		if domain.Status == models.DomainStatusMxSet {
 			domain.Status = sps.checkSpf(domain)
@@ -54,12 +54,25 @@ func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
 	domain.Spf = "v=spf1 include:spf.proxiedmail.com ~all"
 }
 
-func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) int {
+func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, error) {
 	mxrc, _ := net.LookupMX(domain.Domain)
 	for _, mx := range mxrc {
 		if mx.Host == "mx.proxiedmail.com." {
 
 			model := domain.GetModel()
+			if model.DkimKey == "" {
+				mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
+				if err != nil || !mxapiReponseEntity.IsCreated {
+					return 0, errors.New("Error creating domain on MX")
+				}
+				dkim, err2 := mxapi.RequestDkim(model.Domain)
+				if err2 != nil {
+					return 0, err2
+				}
+				model.DkimKey = dkim.Content
+				domain.DkimKey = dkim.Content
+			}
+
 			model.Status = models.DomainStatusMxSet
 			sps.Db.Save(&model)
 			return model.Status
@@ -116,19 +129,6 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 			}
 
 			model := domain.GetModel()
-
-			if model.DkimKey == "" {
-				mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
-				if err != nil || !mxapiReponseEntity.IsCreated {
-					return 0, errors.New("Error creating domain on MX")
-				}
-				dkim, err2 := mxapi.RequestDkim(model.Domain)
-				if err2 != nil {
-					return 0, err2
-				}
-				model.DkimKey = dkim.Content
-				domain.DkimKey = dkim.Content
-			}
 
 			model.Status = models.DomainStatusOwnershipVerified
 			sps.Db.Save(&model)
