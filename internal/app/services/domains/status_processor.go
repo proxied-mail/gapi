@@ -75,10 +75,10 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, 
 
 			model.Status = models.DomainStatusMxSet
 			sps.Db.Save(&model)
-			return model.Status
+			return model.Status, nil
 		}
 	}
-	return domain.Status
+	return domain.Status, nil
 }
 
 func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int {
