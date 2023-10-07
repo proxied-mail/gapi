@@ -13,10 +13,5 @@ type PasswordsRepository struct {
 
 func (pr PasswordsRepository) GetPasswordByProxyBinding(proxyBindingId int, userId int) models.Passwords {
 	model := models.Passwords{}
-	pr.Db.Model(models.Passwords{}).Where(models.Passwords{
-		RelatedToId:   proxyBindingId,
-		RelatedToType: models.RELATED_TO_TYPE_PROXY_BINDING,
-		UserId:        userId,
-	}).First(&model)
-	return model
+	pr.Db.Model(models.Passwords{}).Where(models.Passwords{})
 }
