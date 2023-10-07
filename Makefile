@@ -46,3 +46,5 @@ run-local:
 consul:
 	docker exec -it $(project_name) /go/src/pmgo/build/consul.sh
 
+test:
+	go test -v ./...
