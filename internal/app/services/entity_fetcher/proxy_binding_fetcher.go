@@ -10,11 +10,11 @@ import (
 type ProxyBindingFetcher struct {
 	fx.In
 	ProxyBindingRepository repository.ProxyBindingRepository
-	encoder                entityId.Encoder
+	Encoder                entityId.Encoder
 }
 
 func (pbf ProxyBindingFetcher) GetModel(entityId string) (models.ProxyBinding, error) {
-	decodedId, err := pbf.encoder.Decode(entityId, "proxy_bindings")
+	decodedId, err := pbf.Encoder.Decode(entityId, "proxy_bindings")
 	if err != nil {
 		return models.ProxyBinding{}, err
 	}

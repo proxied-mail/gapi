@@ -4,6 +4,8 @@ import (
 	json2 "encoding/json"
 	http2 "github.com/abrouter/gapi/internal/app/http"
 	real_emails "github.com/abrouter/gapi/internal/app/http/request/passwords"
+	"github.com/abrouter/gapi/internal/app/http/response/common"
+	"github.com/abrouter/gapi/internal/app/http/response/passwords_rsp"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/entity_fetcher"
 	"github.com/abrouter/gapi/internal/app/services/password_srv"
@@ -19,6 +21,7 @@ type PasswordsCntrl struct {
 	repository.UserRepository
 	ProxyBindingFetcher entity_fetcher.ProxyBindingFetcher
 	password_srv.PasswordUpdater
+	passwords_rsp.PasswordListResponseMapper
 }
 
 func (cntrl PasswordsCntrl) Update(c echo.Context) error {
@@ -53,7 +56,7 @@ func (cntrl PasswordsCntrl) Update(c echo.Context) error {
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
 
-	model, err3 := cntrl.PasswordUpdater.UpdatePasswordByProxyBinding(userModel, proxyBindingModel, request.Password)
+	_, err3 := cntrl.PasswordUpdater.UpdatePasswordByProxyBinding(userModel, proxyBindingModel, request.Password)
 	if err3 != nil {
 		resp, _ := json2.Marshal(ErrorResponse{
 			Message: "Cannot update model",
@@ -62,6 +65,16 @@ func (cntrl PasswordsCntrl) Update(c echo.Context) error {
 		return c.String(http.StatusUnprocessableEntity, string(resp))
 	}
 
-	resp, _ := json2.Marshal(model)
-	return c.String(http.StatusOK, string(resp))
+	resp := common.GetSuccess()
+	return c.String(http.StatusOK, resp)
+}
+
+func (cntrl PasswordsCntrl) List(c echo.Context) error {
+	currentUser := http2.CurrentUser(c)
+	userModel := cntrl.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
+	list := cntrl.PasswordsRepository.AllByUser(userModel.Id)
+	rsp := cntrl.PasswordListResponseMapper.MapResponse(list)
+	rspJson, _ := json2.Marshal(rsp)
+
+	return c.String(http.StatusOK, string(rspJson))
 }
