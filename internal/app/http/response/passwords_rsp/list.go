@@ -28,7 +28,7 @@ type PasswordListResponseMapper struct {
 
 func (plrm PasswordListResponseMapper) MapResponse(passwords []models.Passwords) []PasswordRsp {
 
-	var newModels []PasswordRsp
+	var newModels = make([]PasswordRsp, 0)
 	for _, model := range passwords {
 		newModels = append(newModels, PasswordRsp{
 			Id:            plrm.Encode(model.ID, "passwords"),
