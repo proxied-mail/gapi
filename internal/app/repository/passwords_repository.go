@@ -20,3 +20,9 @@ func (pr PasswordsRepository) GetPasswordByProxyBinding(proxyBindingId int, user
 	}).First(&model)
 	return model
 }
+
+func (pr PasswordsRepository) AllByUser(userId int) []models.Passwords {
+	var modelsList []models.Passwords
+	pr.Db.Model(models.Passwords{}).Where(models.Passwords{UserId: userId}).Find(&modelsList)
+	return modelsList
+}

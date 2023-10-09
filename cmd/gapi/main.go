@@ -5,6 +5,7 @@ import (
 	"github.com/abrouter/gapi/internal/app/boot"
 	"github.com/abrouter/gapi/internal/app/env"
 	"github.com/abrouter/gapi/internal/app/provider"
+	"github.com/abrouter/gapi/pkg/entityId"
 	"go.uber.org/fx"
 )
 
@@ -17,6 +18,9 @@ func main() {
 			provider.EchoProvider,
 			MysqlRwConnectionProvider.Connect,
 			provider.OrmProvider,
+			func() entityId.Encoder {
+				return entityId.Encoder{}
+			},
 		),
 		fx.Invoke(
 			boot.ParseFlags,

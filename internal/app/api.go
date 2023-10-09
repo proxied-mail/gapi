@@ -33,4 +33,6 @@ func ConfigureApiRoutes(
 	e.GET("/gapi/real-emails", api.RealEmailsCntrl.GetAll, middlewares.AuthMiddleware)
 
 	e.PATCH("/gapi/passwords/proxy-binding", api.PasswordsCntrl.Update, middlewares.AuthMiddleware)
+	e.GET("/gapi/passwords", api.PasswordsCntrl.List, middlewares.AuthMiddleware)
+
 }

@@ -28,6 +28,7 @@ func (upd PasswordUpdater) UpdatePasswordByProxyBinding(
 	}
 
 	current := upd.PasswordsRepository.GetPasswordByProxyBinding(proxyBinding.Id, user.Id)
+
 	if current.ID > 0 {
 		current.Password = Password
 		upd.Db.Save(&current)

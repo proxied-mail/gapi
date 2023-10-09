@@ -13,6 +13,6 @@ type ProxyBindingRepository struct {
 
 func (pbr ProxyBindingRepository) GetById(id int) models.ProxyBinding {
 	model := models.ProxyBinding{}
-	pbr.Db.Model(models.ProxyBinding{}).Where(models.ProxyBinding{ID: id}).First(&model)
+	pbr.Db.Model(models.ProxyBinding{}).Where(models.ProxyBinding{Id: id}).First(&model)
 	return model
 }
