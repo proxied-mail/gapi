@@ -13,6 +13,7 @@ type api struct {
 	controller.DomainsController
 	controller.RealEmailsCntrl
 	controller.SendMailCntrl
+	controller.PasswordsCntrl
 }
 
 func ConfigureApiRoutes(
@@ -30,4 +31,6 @@ func ConfigureApiRoutes(
 	e.GET("/gapi/custom-domains", api.DomainsController.ListCustom, middlewares.AuthMiddleware) //custom domains
 	e.GET("/gapi/verified-emails-list", api.RealEmailsCntrl.GetVerified, middlewares.AuthMiddleware)
 	e.GET("/gapi/real-emails", api.RealEmailsCntrl.GetAll, middlewares.AuthMiddleware)
+
+	e.PATCH("/gapi/passwords/proxy-binding", api.PasswordsCntrl.Update, middlewares.AuthMiddleware)
 }
