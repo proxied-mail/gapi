@@ -3,7 +3,7 @@ package models
 import "time"
 
 type ProxyBinding struct {
-	ID             int       `json:"id"`
+	Id             int       `json:"id"`
 	UserId         int       `json:"user_id"`
 	ReverseFor     int       `json:"reverse_for"`
 	ProxyAddress   string    `json:"proxy_address"`
