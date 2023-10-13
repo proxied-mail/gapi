@@ -112,14 +112,16 @@ curl --location --request PATCH 'http://localhost:9900/gapi/used-on' \
 --header 'sec-fetch-mode: cors' \
 --header 'sec-fetch-site: same-origin' \
 --header 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36' \
---data-raw '{"proxy_binding_id":"A5653B00-0000-0000-00000BAE", "list": ["zalupa"]}'```
-
+--data-raw '{"proxy_binding_id":"A5653B00-0000-0000-00000BAE", "list": ["zalupa"]}'
+```
 
 Response:
+
 ```
 {
     "status": true
-}```
+}
+```
 
 ### Used on GET
 
@@ -133,5 +135,6 @@ Same cURL as PATCH, but GET. Response:
             "zalupa"
         ]
     }
-]```
+]
+```
 
