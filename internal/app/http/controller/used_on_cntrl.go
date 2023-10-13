@@ -60,7 +60,7 @@ func (cntrl UsedOnCntrl) Change(c echo.Context) error {
 	err3 := cntrl.UsedOnUpdater.Update(userModel, proxyBindingModel, req.List)
 	if err3 != nil {
 		resp, _ := json2.Marshal(ErrorResponse{
-			Message: "Cannot update used on entity",
+			Message: "Cannot update used on entity:" + err3.Error(),
 			Status:  false,
 		})
 		return c.String(http.StatusUnprocessableEntity, string(resp))
@@ -70,7 +70,7 @@ func (cntrl UsedOnCntrl) Change(c echo.Context) error {
 	return c.String(http.StatusOK, resp)
 }
 
-func (cntrl UsedOnCntrl) Get(c echo.Context) error {
+func (cntrl UsedOnCntrl) List(c echo.Context) error {
 	currentUser := http2.CurrentUser(c)
 	userModel := cntrl.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 

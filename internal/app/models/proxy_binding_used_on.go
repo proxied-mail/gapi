@@ -12,3 +12,7 @@ type ProxyBindingUsedOn struct {
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
+
+func (ProxyBindingUsedOn) TableName() string {
+	return "proxy_binding_used_on"
+}

@@ -19,7 +19,7 @@ func (uo UsedOnUpdater) Update(
 	user models.UserModel,
 	proxyBinding models.ProxyBinding,
 	list []string) error {
-	if uo.AccessChecker.CheckProxyBindingAccess(user.Id, proxyBinding) {
+	if !uo.AccessChecker.CheckProxyBindingAccess(user.Id, proxyBinding) {
 		return errors.New("user id and proxy binding user id not equal")
 	}
 
@@ -33,6 +33,7 @@ func (uo UsedOnUpdater) Update(
 
 	usedOnNew := models.ProxyBindingUsedOn{}
 	usedOnNew.ProxyBindingId = proxyBinding.Id
+	usedOnNew.UserId = user.Id
 	usedOnNew.JsonList = string(listJson)
 	uo.DB.Create(&usedOnNew)
 

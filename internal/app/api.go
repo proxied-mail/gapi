@@ -37,4 +37,5 @@ func ConfigureApiRoutes(
 	e.GET("/gapi/passwords", api.PasswordsCntrl.List, middlewares.AuthMiddleware)
 
 	e.PATCH("/gapi/used-on", api.UsedOnCntrl.Change, middlewares.AuthMiddleware)
+	e.GET("/gapi/used-on", api.UsedOnCntrl.List, middlewares.AuthMiddleware)
 }
