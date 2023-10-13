@@ -14,6 +14,7 @@ type api struct {
 	controller.RealEmailsCntrl
 	controller.SendMailCntrl
 	controller.PasswordsCntrl
+	controller.UsedOnCntrl
 }
 
 func ConfigureApiRoutes(
@@ -35,4 +36,5 @@ func ConfigureApiRoutes(
 	e.PATCH("/gapi/passwords/proxy-binding", api.PasswordsCntrl.Update, middlewares.AuthMiddleware)
 	e.GET("/gapi/passwords", api.PasswordsCntrl.List, middlewares.AuthMiddleware)
 
+	e.PATCH("/gapi/used-on", api.UsedOnCntrl.Change, middlewares.AuthMiddleware)
 }
