@@ -10,6 +10,11 @@ func TestEncode(t *testing.T) {
 	if encoded != "3B9D9303-0000-0000-0000A0D3" {
 		t.Error("encoder failed")
 	}
+
+	encoded2 := encoder.Encode(380915, "proxy_bindings")
+	if encoded2 != "2FFF3FFC-5000-0000-00000BAE" {
+		t.Error("encoder2 failed")
+	}
 }
 
 func TestDecode(t *testing.T) {
