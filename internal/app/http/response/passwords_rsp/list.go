@@ -34,7 +34,7 @@ func (plrm PasswordListResponseMapper) MapResponse(passwords []models.Passwords)
 			Id:            plrm.Encode(model.ID, "passwords"),
 			UserId:        plrm.Encode(model.UserId, "users"),
 			RelatedToType: model.RelatedToType,
-			RelatedToId:   plrm.Encode(model.RelatedToId, "proxy_binding"), //todo more logic here
+			RelatedToId:   plrm.Encode(model.RelatedToId, "proxy_bindings"), //todo more logic here
 			Password:      model.Password,
 			Login:         model.Login.String,
 			Title:         model.Title.String,
