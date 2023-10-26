@@ -68,7 +68,7 @@ func (e *Encoder) getEntityHash(entityName string) string {
 }
 
 func (e *Encoder) getCheckSum(entityIdHex string, entityHash string) string {
-	data := entityIdHex + "-" + entityHash + "-" + SALT
+	data := strings.ToLower(entityIdHex + "-" + entityHash + "-" + SALT)
 	hash := md5.Sum([]byte(data))
 	return hex.EncodeToString(hash[2:4]) // Change to [2:4] for bytes 5-8
 }
