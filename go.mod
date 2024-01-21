@@ -6,7 +6,6 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/hashicorp/go-envparse v0.1.0
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/yatsenkolesh/dns_resolver v0.0.0-20240121194412-ddc897b89abe
 	go.uber.org/fx v1.19.3
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
