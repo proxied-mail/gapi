@@ -8,9 +8,9 @@ import (
 	"github.com/abrouter/gapi/internal/app/http/response/domains"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/pkg/mxapi"
+	"github.com/yatsenkolesh/dns_resolver"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"net"
 	"strconv"
 	"strings"
 )
@@ -47,7 +47,7 @@ func (sps StatusProcessorService) ProcessStatus(cd []*domains.DomainResponse) []
 }
 
 func (sps StatusProcessorService) assignVerificationHash(domain *domains.DomainResponse) {
-	domain.VerificationHash = GetMD5Hash("hash" + strconv.Itoa(domain.UserId) + "domain-verification")
+	domain.VerificationHash = GetMD5Hash("hash2" + strconv.Itoa(domain.UserId) + "domain-verification")
 }
 
 func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
@@ -55,9 +55,10 @@ func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
 }
 
 func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, error) {
-	mxrc, _ := net.LookupMX(domain.Domain)
+	mxrc, _ := sps.getResolver().LookupMX(domain.Domain)
+
 	for _, mx := range mxrc {
-		if mx.Host == "mx.proxiedmail.com." {
+		if mx == "mx.proxiedmail.com." {
 
 			model := domain.GetModel()
 			if model.DkimKey == "" {
@@ -82,7 +83,7 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, 
 }
 
 func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int {
-	txts, _ := net.LookupTXT(domain.Domain)
+	txts, _ := sps.getResolver().LookupTXT(domain.Domain)
 	for _, txt := range txts {
 
 		if txt == domain.DkimKey {
@@ -97,7 +98,7 @@ func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int 
 }
 
 func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
-	txts, _ := net.LookupTXT(domain.Domain)
+	txts, _ := sps.getResolver().LookupTXT(domain.Domain)
 
 	fmt.Println("Debug for " + domain.Domain)
 	for _, txt := range txts {
@@ -115,8 +116,14 @@ func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
 	return domain.Status
 }
 
+func (sps StatusProcessorService) getResolver() *dns_resolver.DnsResolver {
+	resolver := dns_resolver.New([]string{"8.8.8.8", "8.8.4.4"})
+
+	return resolver
+}
+
 func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) (int, error) {
-	txts, _ := net.LookupTXT(domain.Domain)
+	txts, _ := sps.getResolver().LookupTXT(domain.Domain)
 	txtStartWith := "proxiedmail-verification="
 
 	for _, txt := range txts {
