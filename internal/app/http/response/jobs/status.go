@@ -1,6 +1,6 @@
 package jobs
 
-type StatusReponse struct {
+type StatusJobsResponse struct {
 	Count  int64  `json:"count"`
 	Status string `json:"status"`
 }

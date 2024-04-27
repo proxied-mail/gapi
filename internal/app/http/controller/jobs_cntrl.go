@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"github.com/abrouter/gapi/internal/app/http/response/jobs"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
@@ -14,10 +16,16 @@ type JobsController struct {
 
 func (jbCntrl JobsController) status(c echo.Context) error {
 	count := jbCntrl.jbsRep.Count()
-	status := http.StatusOK
+	httpStatus := http.StatusOK
+	statusText := "ok"
 	if count > 20 {
-		status = http.StatusInternalServerError
+		httpStatus = http.StatusInternalServerError
+		statusText = "fail"
 	}
+	resp, _ := json.Marshal(jobs.StatusJobsResponse{
+		Status: statusText,
+		Count:  count,
+	})
 
-	return c.String(status, "nil")
+	return c.String(httpStatus, string(resp))
 }
