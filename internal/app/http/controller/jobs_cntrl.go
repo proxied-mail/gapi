@@ -11,11 +11,11 @@ import (
 
 type JobsController struct {
 	fx.In
-	jbsRep repository.JobsRepository
+	JbsRep repository.JobsRepository
 }
 
-func (jbCntrl JobsController) status(c echo.Context) error {
-	count := jbCntrl.jbsRep.Count()
+func (jbCntrl JobsController) Status(c echo.Context) error {
+	count := jbCntrl.JbsRep.Count()
 	httpStatus := http.StatusOK
 	statusText := "ok"
 	if count > 20 {

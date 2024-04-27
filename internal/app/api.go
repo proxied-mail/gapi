@@ -15,6 +15,7 @@ type api struct {
 	controller.SendMailCntrl
 	controller.PasswordsCntrl
 	controller.UsedOnCntrl
+	controller.JobsController
 }
 
 func ConfigureApiRoutes(
@@ -38,4 +39,6 @@ func ConfigureApiRoutes(
 
 	e.PATCH("/gapi/used-on", api.UsedOnCntrl.Change, middlewares.AuthMiddleware)
 	e.GET("/gapi/used-on", api.UsedOnCntrl.List, middlewares.AuthMiddleware)
+
+	e.GET("/gapi/jobs-status", api.JobsController.Status)
 }
