@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/abrouter/gapi/internal/app/http/response/ui_text_status"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
@@ -27,8 +29,32 @@ func (jbCntrl UiTestController) Basic(c echo.Context) error {
 		fmt.Printf("error = %s \n", err)
 	}
 
-	// Print response
-	fmt.Printf("Response = %s", string(data))
+	//// Print response
+	//fmt.Printf("Response = %s", string(data))
 
-	return c.String(http.StatusOK, "OK")
+	str1Check := strings.Contains(
+		string(data),
+		" <a class=\"nav_li hover__line\" href=\"/en/settings\">API</a>",
+	)
+	str2Check := strings.Contains(
+		string(data),
+		"<div id=\"root\"></div>",
+	)
+	textStatus := "failed"
+	if str1Check && str2Check {
+		textStatus = "ok"
+	}
+	httpStatus := http.StatusInternalServerError
+	if textStatus == "ok" {
+		httpStatus = http.StatusOK
+	}
+
+	resp1, _ := json.Marshal(ui_text_status.UiTestStatus{
+		Status: textStatus,
+	})
+
+	return c.String(
+		httpStatus,
+		string(resp1),
+	)
 }
