@@ -16,6 +16,7 @@ type api struct {
 	controller.PasswordsCntrl
 	controller.UsedOnCntrl
 	controller.JobsController
+	controller.UiTestController
 }
 
 func ConfigureApiRoutes(
@@ -41,4 +42,5 @@ func ConfigureApiRoutes(
 	e.GET("/gapi/used-on", api.UsedOnCntrl.List, middlewares.AuthMiddleware)
 
 	e.GET("/gapi/jobs-status", api.JobsController.Status)
+	e.GET("/gapi/basic-ui-test", api.UiTestController.Basic)
 }
