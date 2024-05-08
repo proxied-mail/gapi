@@ -12,6 +12,8 @@ import (
 	"github.com/emersion/go-msgauth/dkim"
 )
 
+//original https://github.com/metaer/go-easy-dkim-signer
+
 func Sign(data []byte, dkimPrivateKeyFilePath string, selector string, domain string) ([]byte, error) {
 	msg := bytes.NewReader(data)
 	privateKeyBytes, err := os.ReadFile(dkimPrivateKeyFilePath)
