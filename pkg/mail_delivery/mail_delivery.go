@@ -1,10 +1,14 @@
 package mail_delivery
 
 import (
+	"bytes"
 	b64 "encoding/base64"
 	"fmt"
 	"gopkg.in/gomail.v2"
 	"io"
+	"log"
+	"net/smtp"
+	"strconv"
 )
 
 type SendMailAuthData struct {
@@ -54,10 +58,25 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		)
 	}
 
-	d := gomail.NewDialer(authData.Host, authData.Port, authData.Username, authData.Password)
+	var err error
+	var buffer bytes.Buffer
+	_, err = m.WriteTo(&buffer)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// Send the email to Bob, Cora and Dan.
-	if err := d.DialAndSend(m); err != nil {
+	auth := smtp.PlainAuth("", authData.Username, authData.Password, authData.Host)
+	err = smtp.SendMail(
+		authData.Host+":"+strconv.Itoa(authData.Port),
+		auth,
+		sendMailCommand.From,
+		[]string{
+			sendMailCommand.To,
+		},
+		buffer.Bytes(),
+	)
+
+	if err != nil {
 		return err
 	}
 
