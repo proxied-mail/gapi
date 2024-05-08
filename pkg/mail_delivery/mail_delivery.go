@@ -4,11 +4,13 @@ import (
 	"bytes"
 	b64 "encoding/base64"
 	"fmt"
+	easydkim "github.com/abrouter/gapi/pkg/mail_delivery/dkim"
 	"gopkg.in/gomail.v2"
 	"io"
 	"log"
 	"net/smtp"
 	"strconv"
+	"strings"
 )
 
 type SendMailAuthData struct {
@@ -65,6 +67,27 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		log.Fatal(err)
 	}
 
+	separated := strings.Split(sendMailCommand.From, "@")
+	domain := ""
+	if len(separated) > 0 {
+		domain = separated[1]
+	}
+
+	message := buffer.Bytes()
+	if domain != "" {
+		var signedMessage []byte
+		signedMessage, err = easydkim.Sign(
+			buffer.Bytes(),
+			"/app/config/dkim/key.private",
+			"dkim",
+			domain,
+		)
+		if err != nil {
+			fmt.Println("DKIM signing error" + err.Error())
+		}
+		message = signedMessage
+	}
+
 	auth := smtp.PlainAuth("", authData.Username, authData.Password, authData.Host)
 	err = smtp.SendMail(
 		authData.Host+":"+strconv.Itoa(authData.Port),
@@ -73,7 +96,7 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		[]string{
 			sendMailCommand.To,
 		},
-		buffer.Bytes(),
+		message,
 	)
 
 	if err != nil {
