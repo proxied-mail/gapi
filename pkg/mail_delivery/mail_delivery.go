@@ -70,8 +70,10 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	separated := strings.Split(sendMailCommand.From, "@")
 	domain := ""
 	if len(separated) > 0 {
-		domain = separated[1]
+		domain = strings.Replace(separated[1], ">", "", 999)
 	}
+
+	fmt.Println("domain111:" + domain + "'")
 
 	message := buffer.Bytes()
 	if domain != "" {
@@ -84,8 +86,11 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		)
 		if err != nil {
 			fmt.Println("DKIM signing error" + err.Error())
+			fmt.Println("DKIM wasn't signed")
+		} else {
+			message = signedMessage
+			fmt.Println(string(message))
 		}
-		message = signedMessage
 	}
 
 	auth := smtp.PlainAuth("", authData.Username, authData.Password, authData.Host)

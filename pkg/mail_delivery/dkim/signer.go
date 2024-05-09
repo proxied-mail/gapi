@@ -2,7 +2,6 @@ package easydkim
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
@@ -27,12 +26,12 @@ func Sign(data []byte, dkimPrivateKeyFilePath string, selector string, domain st
 		return nil, errors.New("failed to decode PEM block containing private key")
 	}
 
-	result, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	result, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	privateKey := result.(*rsa.PrivateKey)
+	privateKey := result
 
 	options := &dkim.SignOptions{
 		Domain:   domain,
