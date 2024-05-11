@@ -75,12 +75,13 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 
 	fmt.Println("domain111:" + domain + "'")
 
+	privateKeyPath := "/app/config/dkim/key.private"
 	message := buffer.Bytes()
 	if domain != "" {
 		var signedMessage []byte
 		signedMessage, err = easydkim.Sign(
 			buffer.Bytes(),
-			"/app/config/dkim/key.private",
+			privateKeyPath,
 			"dkim",
 			domain,
 		)
