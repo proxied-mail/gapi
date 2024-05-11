@@ -6,9 +6,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"os"
-
 	"github.com/emersion/go-msgauth/dkim"
+	"os"
 )
 
 //original https://github.com/metaer/go-easy-dkim-signer
@@ -21,6 +20,7 @@ func Sign(data []byte, dkimPrivateKeyFilePath string, selector string, domain st
 		return nil, err
 	}
 
+	//fmt.Println("Private key bytes", string(privateKeyBytes))
 	block, _ := pem.Decode(privateKeyBytes)
 	if block == nil {
 		return nil, errors.New("failed to decode PEM block containing private key")
