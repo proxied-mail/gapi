@@ -2,15 +2,19 @@ package mail_delivery
 
 import (
 	"bytes"
+	"crypto/md5"
 	b64 "encoding/base64"
+	"encoding/hex"
 	"fmt"
 	easydkim "github.com/abrouter/gapi/pkg/mail_delivery/dkim"
 	"gopkg.in/gomail.v2"
 	"io"
 	"log"
+	"math/rand"
 	"net/smtp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type SendMailAuthData struct {
@@ -38,6 +42,20 @@ type Attachment struct {
 	Url      string `json:"url"`
 }
 
+func getMD5Hash(text string) string {
+	hash := md5.Sum([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
+func messageId() string {
+	min := 1000
+	max := 9999
+	rand := rand.Intn(max-min) + min
+	val := strconv.FormatInt(time.Now().UnixNano(), 16) + strconv.Itoa(rand)
+	val = getMD5Hash(val)
+	return "<" + val + "@mx.proxiedmail.com>"
+}
+
 func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", sendMailCommand.From)
@@ -59,6 +77,7 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 			gomail.SetHeader(map[string][]string{"Content-Type": {attachment.MimeType}}),
 		)
 	}
+	m.SetHeader("Message-Id", messageId())
 
 	var err error
 	var buffer bytes.Buffer
