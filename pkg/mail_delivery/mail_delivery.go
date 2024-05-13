@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	b64 "encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	easydkim "github.com/abrouter/gapi/pkg/mail_delivery/dkim"
 	"gopkg.in/gomail.v2"
@@ -48,29 +49,30 @@ func getMD5Hash(text string) string {
 }
 
 func addLineBreaks(input string, maxLineLength int) string {
-	var sb strings.Builder
-	words := strings.FieldsFunc(input, func(r rune) bool { return r == ' ' || r == '\n' })
-	lineLength := 0
-	prevWordHadNewline := false
+	var result strings.Builder
+	lines := strings.Split(input, "\n")
 
-	for i, word := range words {
-		wordLength := len(word)
-		if lineLength+wordLength+1 > maxLineLength { // +1 for space after word
-			if i > 0 && !prevWordHadNewline { // Only add a newline if the previous word didn't end with a newline
-				sb.WriteString("\n")
+	for _, line := range lines {
+		words := strings.Fields(line)
+		lineLength := 0
+
+		for _, word := range words {
+			wordLength := len(word)
+			if lineLength+wordLength > maxLineLength {
+				result.WriteString("\n")
+				lineLength = 0
 			}
-			lineLength = 0
+			if lineLength > 0 {
+				result.WriteString(" ")
+				lineLength++
+			}
+			result.WriteString(word)
+			lineLength += wordLength
 		}
-		if lineLength > 0 {
-			sb.WriteString(" ")
-			lineLength++
-		}
-		sb.WriteString(word)
-		lineLength += wordLength
-		prevWordHadNewline = strings.HasSuffix(words[i], "\n")
+		result.WriteString("\n") // Preserve original line breaks
 	}
 
-	return sb.String()
+	return result.String()
 }
 
 func messageId() string {
@@ -84,8 +86,9 @@ func messageId() string {
 
 func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", sendMailCommand.From)
 	//test
+	//m.SetHeader("MIME-Version", "1.0")
+
 	m.SetHeader("Subject", sendMailCommand.Subject)
 
 	if sendMailCommand.ReplyTo != "" {
@@ -93,6 +96,11 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	}
 	m.SetHeader("Message-Id", messageId())
 
+	//m.SetHeader("MIME-Version", "1.0")
+	m.SetHeader("Date", time.Now().Format(time.RFC1123Z))
+
+	//todo make from look like that
+	m.SetHeader("From", sendMailCommand.From)
 	//m.SetHeader("From", "<ba8caaaed156aac61e40e6eeb8cc8d01@pxdmail.com>")
 	m.SetHeader("To", sendMailCommand.To)
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
@@ -126,10 +134,12 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 
 	privateKeyPath := "/app/config/dkim/key.private"
 	message := buffer.Bytes()
+	message = []byte(strings.Replace(string(message), "Mime-Version: 1.0", "MIME-Version: 1.0", 1))
+
 	if domain != "" {
 		var signedMessage []byte
 		signedMessage, err = easydkim.Sign(
-			buffer.Bytes(),
+			message,
 			privateKeyPath,
 			"dkim",
 			domain,
@@ -139,10 +149,14 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 			fmt.Println("DKIM wasn't signed")
 		} else {
 			message = signedMessage
-			//message = []byte(addLineBreaks(string(signedMessage), 70))
-			//l, _ := json.Marshal(message)
+			message = []byte(b64.StdEncoding.EncodeToString(message))
+			message, _ = b64.StdEncoding.DecodeString(string(message))
+			//json encode message into single array to l
+			json5, _ := json.Marshal(
+				[]string{string(message)},
+			)
 
-			//fmt.Println(string(l))
+			fmt.Println(string(json5))
 		}
 	}
 
