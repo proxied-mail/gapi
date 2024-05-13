@@ -100,8 +100,17 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	m.SetHeader("Date", time.Now().Format(time.RFC1123Z))
 
 	//todo make from look like that
-	m.SetHeader("From", sendMailCommand.From)
-	//m.SetHeader("From", "<ba8caaaed156aac61e40e6eeb8cc8d01@pxdmail.com>")
+	fmt.Println(sendMailCommand.From)
+
+	from := sendMailCommand.From
+	from = strings.Replace(from, "\"", "", 2)
+	spaceBeforeLrv := strings.Index(from, "<")
+	if spaceBeforeLrv != 0 {
+		from = "\"" + from
+		from = strings.Replace(from, " <", " \" <", 1)
+	}
+
+	m.SetHeader("From", from)
 	m.SetHeader("To", sendMailCommand.To)
 	m.SetBody(sendMailCommand.Type, sendMailCommand.Body)
 	for _, attachment := range sendMailCommand.Attachments {
