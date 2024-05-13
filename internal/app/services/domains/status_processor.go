@@ -5,9 +5,11 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"github.com/abrouter/gapi/internal/app/http/response/domains"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/pkg/mxapi"
+	"github.com/miekg/dns"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 	"net"
@@ -86,9 +88,24 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, 
 
 func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int {
 
-	cname, _ := sps.getResolver().LookupCNAME(context.Background(), "dkim._domainkey."+domain.Domain)
+	cnameCheckDomain := "dkim._domainkey." + domain.Domain + "."
 
-	if cname == "dkim._domainkey.pxdmail.com." {
+	fmt.Println("cnameCheckDomain." + domain.Domain)
+
+	config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
+	c := new(dns.Client)
+	m := new(dns.Msg)
+
+	// Note the trailing dot. miekg/dns is very low-level and expects canonical names.
+	m.SetQuestion(cnameCheckDomain, dns.TypeCNAME)
+	m.RecursionDesired = true
+	r, _, error := c.Exchange(m, config.Servers[0]+":"+config.Port)
+	if error != nil {
+		fmt.Println(error.Error())
+		return domain.Status
+	}
+
+	if r.Answer[0].(*dns.CNAME).Target == "dkim._domainkey.pxdmail.com." {
 		model := domain.GetModel()
 		model.Status = models.DomainStatusDkimSet
 		sps.Db.Save(&model)
