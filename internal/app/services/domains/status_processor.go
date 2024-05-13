@@ -86,17 +86,15 @@ func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, 
 
 func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int {
 
-	txts, _ := sps.getResolver().LookupTXT(context.Background(), domain.Domain)
+	cname, _ := sps.getResolver().LookupCNAME(context.Background(), "dkim._domainkey."+domain.Domain)
 
-	for _, txt := range txts {
-		if txt == domain.DkimKey {
-
-			model := domain.GetModel()
-			model.Status = models.DomainStatusDkimSet
-			sps.Db.Save(&model)
-			return model.Status
-		}
+	if cname == "dkim._domainkey.pxdmail.com." {
+		model := domain.GetModel()
+		model.Status = models.DomainStatusDkimSet
+		sps.Db.Save(&model)
+		return model.Status
 	}
+
 	return domain.Status
 }
 
