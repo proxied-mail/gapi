@@ -105,6 +105,10 @@ func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int 
 		return domain.Status
 	}
 
+	if len(r.Answer) == 0 {
+		return domain.Status
+	}
+
 	if r.Answer[0].(*dns.CNAME).Target == "dkim._domainkey.pxdmail.com." {
 		model := domain.GetModel()
 		model.Status = models.DomainStatusDkimSet
