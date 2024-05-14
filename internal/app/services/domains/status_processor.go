@@ -90,8 +90,6 @@ func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int 
 
 	cnameCheckDomain := "dkim._domainkey." + domain.Domain + "."
 
-	fmt.Println("cnameCheckDomain." + domain.Domain)
-
 	config, _ := dns.ClientConfigFromFile("/etc/resolv.conf")
 	c := new(dns.Client)
 	m := new(dns.Msg)
