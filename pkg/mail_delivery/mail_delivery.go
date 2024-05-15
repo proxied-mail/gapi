@@ -86,8 +86,6 @@ func messageId() string {
 
 func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error {
 	m := gomail.NewMessage()
-	//test
-	//m.SetHeader("MIME-Version", "1.0")
 
 	m.SetHeader("Subject", sendMailCommand.Subject)
 
