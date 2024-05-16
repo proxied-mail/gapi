@@ -94,7 +94,6 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	}
 	m.SetHeader("Message-Id", messageId())
 
-	//m.SetHeader("MIME-Version", "1.0")
 	m.SetHeader("Date", time.Now().Format(time.RFC1123Z))
 
 	//todo make from look like that
