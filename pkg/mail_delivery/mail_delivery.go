@@ -96,7 +96,6 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 
 	m.SetHeader("Date", time.Now().Format(time.RFC1123Z))
 
-	//todo make from look like that
 	fmt.Println(sendMailCommand.From)
 
 	from := sendMailCommand.From
