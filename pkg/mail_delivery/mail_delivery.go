@@ -155,9 +155,9 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 		} else {
 			message = signedMessage
 
-			if Is7Bit(message) {
-				message = convert7bitTo8bit(message)
-			}
+			//if Is7Bit(message) {
+			//	message = convert7bitTo8bit(message)
+			//}
 
 			message = []byte(b64.StdEncoding.EncodeToString(message))
 			message, _ = b64.StdEncoding.DecodeString(string(message))
