@@ -154,6 +154,11 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 			fmt.Println("DKIM wasn't signed")
 		} else {
 			message = signedMessage
+
+			if Is7Bit(message) {
+				message = convert7bitTo8bit(message)
+			}
+
 			message = []byte(b64.StdEncoding.EncodeToString(message))
 			message, _ = b64.StdEncoding.DecodeString(string(message))
 			//json encode message into single array to l
@@ -181,4 +186,35 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 	}
 
 	return nil
+}
+
+func Is7Bit(data []byte) bool {
+	for _, b := range data {
+		if b > 127 {
+			return false
+		}
+	}
+	return true
+}
+
+func convert7bitTo8bit(data []byte) []byte {
+	// Store the 8-bit ASCII in res.
+	var res = make([]byte, len(data)*8/7)
+
+	fmt.Printf("First 100 bytes of Data: % #x\n", data[:100])
+	var idx, shift int
+	for i, offset := 0, 0; i < len(res)-1; i, offset = i+1, offset+7 {
+		idx, shift = offset/8, offset%8
+
+		lhs := data[idx] & (255 >> shift)
+		if shift == 0 {
+			lhs >>= 1
+		} else if shift > 1 {
+			lhs <<= shift - 1
+		}
+		rhs := (data[idx+1] & (255 << (9 - shift))) >> (9 - shift)
+		res[i] = (lhs | rhs) & 127
+	}
+	fmt.Printf("First 100 bytes encoded: % #x\nFirst 100 chars: %s", res[:100], res[:100])
+	return res
 }
