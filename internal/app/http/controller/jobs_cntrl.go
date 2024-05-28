@@ -18,7 +18,7 @@ func (jbCntrl JobsController) Status(c echo.Context) error {
 	count := jbCntrl.JbsRep.Count()
 	httpStatus := http.StatusOK
 	statusText := "ok"
-	if count > 20 {
+	if count > 100 {
 		httpStatus = http.StatusInternalServerError
 		statusText = "fail"
 	}
