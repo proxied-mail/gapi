@@ -17,14 +17,14 @@ type WhoisResponse struct {
 }
 
 func (cntrl WhoisCntrl) Whois(c echo.Context) error {
-
-	domain := c.QueryParam("domain")
-	isDomainRegisterred := available.Domain(domain)
+	domain := c.Request().URL.Query().Get("domain")
+	isDomainRegistered := available.Domain(domain)
 
 	resp, _ := json.Marshal(WhoisResponse{
-		IsDomainRegistered: isDomainRegisterred,
+		IsDomainRegistered: !isDomainRegistered,
 		HasError:           false,
 	})
 
+	c.Response().Header().Set("Content-Type", "application/json")
 	return c.String(200, string(resp))
 }
