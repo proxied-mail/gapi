@@ -1,6 +1,8 @@
 module github.com/abrouter/gapi
 
-go 1.21
+go 1.21.6
+
+toolchain go1.22.3
 
 require (
 	github.com/emersion/go-msgauth v0.6.8
