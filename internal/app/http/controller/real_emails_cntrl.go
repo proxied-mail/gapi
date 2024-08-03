@@ -9,9 +9,11 @@ import (
 	"github.com/abrouter/gapi/internal/app/http/response/real_emails_rsp"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/real_emails_srv"
+	"github.com/abrouter/gapi/pkg/entityId"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 	validator2 "gopkg.in/go-playground/validator.v9"
+	"gorm.io/gorm"
 	"io"
 	"net/http"
 )
@@ -22,6 +24,8 @@ type RealEmailsCntrl struct {
 	EmailConfirmationsRepository repository.EmailConfirmationsRepository
 	RealEmailsRepository         repository.RealEmailsRepository
 	ReplaceRealEmail             real_emails_srv.ReplaceRealEmail
+	Encoder                      entityId.Encoder
+	Db                           *gorm.DB
 }
 
 func (rec RealEmailsCntrl) GetAll(c echo.Context) error {
@@ -82,4 +86,45 @@ func (rec RealEmailsCntrl) Update(c echo.Context) error {
 	json, _ := json2.Marshal(resp)
 
 	return c.String(http.StatusOK, string(json))
+}
+
+func (rec RealEmailsCntrl) MarkAsVerificationRequestShown(c echo.Context) error {
+	currentUser := http2.CurrentUser(c)
+	userModel := rec.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
+
+	request := real_emails.MarkAsVerReqShownRequest{}
+	reqBody, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		resp, _ := json2.Marshal(ErrorResponse{
+			Message: "Invalid json",
+			Status:  false,
+		})
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+	json2.Unmarshal(reqBody, &request)
+	id, err2 := rec.Encoder.Decode(request.Id, "email_confirmations")
+	if err2 != nil {
+		resp, _ := json2.Marshal(ErrorResponse{
+			Message: "Error on decoding entity",
+			Status:  false,
+		})
+		return c.JSON(http.StatusUnprocessableEntity, resp)
+	}
+
+	confirmation := rec.EmailConfirmationsRepository.GetByIdAndUserId(int(id), userModel.Id)
+	if confirmation.ID < 1 {
+		resp, _ := json2.Marshal(ErrorResponse{
+			Message: "Cant find confirmation",
+			Status:  false,
+		})
+		return c.JSON(http.StatusNotFound, resp)
+	}
+	confirmation.ShownConfirmationRequest = true
+	rec.Db.Save(confirmation)
+
+	resp, _ := json2.Marshal(common.Success{
+		Status: true,
+	})
+
+	return c.JSON(http.StatusOK, resp)
 }
