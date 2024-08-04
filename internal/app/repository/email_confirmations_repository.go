@@ -25,3 +25,13 @@ func (ecr EmailConfirmationsRepository) GetAllConfirmedEmails(userId int) []stri
 	}
 	return emailsList
 }
+
+func (ecr EmailConfirmationsRepository) GetByIdAndUserId(id int, userId int) models.EmailConfirmations {
+	model := models.EmailConfirmations{}
+	ecr.Db.Model(models.EmailConfirmations{}).Where(models.EmailConfirmations{
+		UserId: userId,
+		ID:     id,
+	}).First(&model)
+
+	return model
+}
