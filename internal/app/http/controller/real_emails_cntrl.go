@@ -104,27 +104,27 @@ func (rec RealEmailsCntrl) MarkAsVerificationRequestShown(c echo.Context) error 
 	json2.Unmarshal(reqBody, &request)
 	id, err2 := rec.Encoder.Decode(request.Id, "email_confirmations")
 	if err2 != nil {
-		resp, _ := json2.Marshal(ErrorResponse{
+		resp := ErrorResponse{
 			Message: "Error on decoding entity",
 			Status:  false,
-		})
+		}
 		return c.JSON(http.StatusUnprocessableEntity, resp)
 	}
 
 	confirmation := rec.EmailConfirmationsRepository.GetByIdAndUserId(int(id), userModel.Id)
 	if confirmation.ID < 1 {
-		resp, _ := json2.Marshal(ErrorResponse{
+		resp := ErrorResponse{
 			Message: "Cant find confirmation",
 			Status:  false,
-		})
+		}
 		return c.JSON(http.StatusNotFound, resp)
 	}
 	confirmation.ShownConfirmationRequest = true
 	rec.Db.Save(confirmation)
 
-	resp, _ := json2.Marshal(common.Success{
+	resp := common.Success{
 		Status: true,
-	})
+	}
 
 	return c.JSON(http.StatusOK, resp)
 }

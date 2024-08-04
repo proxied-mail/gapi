@@ -24,8 +24,11 @@ func (e *Encoder) Encode(id int, entityName string) string {
 }
 
 func (e *Encoder) Decode(entityId string, entityName string) (int64, error) {
+	if len(entityId) == 0 {
+		return 0, errors.New("entityId is empty")
+	}
+
 	entityId = strings.ToLower(entityId)
-	//checkSum := entityId[:4]
 
 	entityHash := entityId[len(entityId)-4:]
 
