@@ -39,7 +39,7 @@ func ConfigureApiRoutes(
 		api.RealEmailsCntrl.MarkAsVerificationRequestShown,
 		middlewares.AuthMiddleware,
 	)
-	e.POST(
+	e.GET(
 		"/gapi/email-confirmations/check",
 		api.RealEmailsCntrl.CheckEmailConfirmation,
 		middlewares.AuthMiddleware,
