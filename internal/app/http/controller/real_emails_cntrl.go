@@ -122,8 +122,9 @@ func (rec RealEmailsCntrl) MarkAsVerificationRequestShown(c echo.Context) error 
 	confirmation.ShownConfirmationRequest = true
 	rec.Db.Save(confirmation)
 
-	resp := common.Success{
+	resp := email_confirmations.MarkAsShownResponse{
 		Status: true,
+		Email:  confirmation.RawEmail,
 	}
 
 	return c.JSON(http.StatusOK, resp)
