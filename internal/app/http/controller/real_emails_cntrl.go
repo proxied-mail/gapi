@@ -134,10 +134,13 @@ func (rec RealEmailsCntrl) CheckEmailConfirmation(c echo.Context) error {
 	currentUser := http2.CurrentUser(c)
 	userModel := rec.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
 	firstUnconfirmed := rec.EmailConfirmationsRepository.FirstUnconfirmedNotShown(userModel.Id)
-	if firstUnconfirmed.ID < 1 {
+	hasConfirmedEmails := rec.EmailConfirmationsRepository.HasConfirmedEmails(userModel.Id)
+
+	if firstUnconfirmed.ID < 1 || hasConfirmedEmails {
 		response := email_confirmations.FirstUnconfirmedResponse{
 			HasUnconfirmedNotShown: false,
 			Id:                     "",
+			ContinueChecking:       false,
 		}
 		return c.JSON(http.StatusOK, response)
 	}
@@ -146,6 +149,7 @@ func (rec RealEmailsCntrl) CheckEmailConfirmation(c echo.Context) error {
 	response := email_confirmations.FirstUnconfirmedResponse{
 		HasUnconfirmedNotShown: firstUnconfirmed.ID > 0,
 		Id:                     id,
+		ContinueChecking:       true,
 	}
 
 	return c.JSON(http.StatusOK, response)

@@ -35,6 +35,18 @@ func (ecr EmailConfirmationsRepository) GetByIdAndUserId(id int, userId int) mod
 
 	return model
 }
+
+func (ecr EmailConfirmationsRepository) HasConfirmedEmails(userId int) bool {
+	var counter int64
+
+	ecr.Db.Model(models.EmailConfirmations{}).Where(models.EmailConfirmations{
+		UserId:    userId,
+		Confirmed: 1,
+	}).Count(&counter)
+
+	return counter > 0
+}
+
 func (ecr EmailConfirmationsRepository) FirstUnconfirmedNotShown(userId int) models.EmailConfirmations {
 	model := models.EmailConfirmations{}
 
