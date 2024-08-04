@@ -31,7 +31,17 @@ func (ecr EmailConfirmationsRepository) GetByIdAndUserId(id int, userId int) mod
 	ecr.Db.Model(models.EmailConfirmations{}).Where(models.EmailConfirmations{
 		UserId: userId,
 		ID:     id,
-	}).First(&model)
+	}).Find(&model)
+
+	return model
+}
+func (ecr EmailConfirmationsRepository) FirstUnconfirmedNotShown(userId int) models.EmailConfirmations {
+	model := models.EmailConfirmations{}
+
+	ecr.Db.Model(models.EmailConfirmations{}).Where(models.EmailConfirmations{
+		UserId: userId,
+		Type:   2,
+	}).Where("shown_confirmation_request = ?", 0).Find(&model)
 
 	return model
 }
