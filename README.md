@@ -34,7 +34,7 @@ curl --location --request POST 'http://localhost:9900/gapi/send-mail' \
         "host": "mx.proxiedmail.com",
         "port": 587,
         "username":"catchall@emailsharevialink.com",
-        "password": "7Elrf2PZKsILfu38HS7J"
+        "password": "not-valid-anymore-7Elrf2PZKsILfu38HS7J"
     },
     "mail": {
         "from": "catchall@emailsharevialink.com",
