@@ -18,6 +18,7 @@ type api struct {
 	controller.JobsController
 	controller.UiTestController
 	controller.WhoisCntrl
+	controller.SettingsController
 }
 
 func ConfigureApiRoutes(
@@ -46,6 +47,8 @@ func ConfigureApiRoutes(
 	)
 
 	e.GET("/gapi/real-emails", api.RealEmailsCntrl.GetAll, middlewares.AuthMiddleware)
+
+	e.PATCH("/gapi/settings/update", api.SettingsController.Update, middlewares.AuthMiddleware)
 
 	e.PATCH("/gapi/passwords/proxy-binding", api.PasswordsCntrl.Update, middlewares.AuthMiddleware)
 	e.GET("/gapi/passwords", api.PasswordsCntrl.List, middlewares.AuthMiddleware)
