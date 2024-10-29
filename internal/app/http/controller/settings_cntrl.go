@@ -15,12 +15,28 @@ type SettingsController struct {
 	fx.In
 	UserRepository        repository.UserRepository
 	UpdateSettingsService settings.UpdateSettingsService
+	repository.SettingsRepository
 }
 
 type SettingsResponse struct {
 	Key       string `json:"key"`
 	Value     string `json:"value"`
 	CreatedAt string `json:"created_at"`
+}
+
+func (sc SettingsController) GetAll(
+	c echo.Context,
+) error {
+	currentUser := http2.CurrentUser(c)
+	userModel := sc.UserRepository.GetUserByEmail(currentUser.Data.Attributes.Username)
+	updateSettingsRequest := settings.UpdateSettingsRequest{}
+	json.NewDecoder(c.Request().Body).Decode(&updateSettingsRequest)
+
+	model := sc.SettingsRepository.AllUserSettings(userModel.Id)
+	rsp1 := MapResponse(model)
+
+	resp, _ := json.Marshal(rsp1)
+	return c.String(http.StatusOK, string(resp))
 }
 
 func (sc SettingsController) Update(
