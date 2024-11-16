@@ -12,6 +12,7 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"mime"
 	"net/smtp"
 	"strconv"
 	"strings"
@@ -98,12 +99,32 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 
 	fmt.Println(sendMailCommand.From)
 
+	//from := mime.QEncoding.Encode("UTF-8", sendMailCommand.From)
 	from := sendMailCommand.From
 	from = strings.Replace(from, "\"", "", 2)
 	spaceBeforeLrv := strings.Index(from, "<")
 	if spaceBeforeLrv != 0 {
 		from = "\"" + from
 		from = strings.Replace(from, " <", " \" <", 1)
+	}
+
+	//reverse from string
+	fromSplit := strings.Split(from, "<")
+
+	//todo: refactor this
+	if len(fromSplit) > 1 {
+		//get Last
+		last := fromSplit[len(fromSplit)-1]
+		senderSign := "<" + last
+		presentationPart := fromSplit[0 : len(fromSplit)-1]
+
+		quote := "\""
+		newPresentationPart := strings.Join(presentationPart, "")
+		newPresentationPart = strings.Replace(newPresentationPart, quote, "", -1)
+
+		newPresentationPart = quote + mime.QEncoding.Encode("UTF-8", newPresentationPart) + quote
+
+		from = strings.Join([]string{newPresentationPart, senderSign}, " ")
 	}
 
 	m.SetHeader("From", from)
