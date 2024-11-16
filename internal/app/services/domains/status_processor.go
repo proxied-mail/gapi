@@ -59,11 +59,10 @@ func (sps StatusProcessorService) assignSpf(domain *domains.DomainResponse) {
 }
 
 func (sps StatusProcessorService) checkMx(domain *domains.DomainResponse) (int, error) {
-	mxrc, _ := sps.getResolver().LookupMX(context.Background(), domain.Domain)
+	mxrc, _ := sps.lookupMX2(context.Background(), domain.Domain)
 
 	for _, mx := range mxrc {
-		if mx.Host == "mx.proxiedmail.com." {
-
+		if mx.Mx == "mx.proxiedmail.com." {
 			model := domain.GetModel()
 			if model.DkimKey == "" {
 				mxapiReponseEntity, err := mxapi.CreateNewUserCatchAllRequest(model.Domain, model.SmtpPassword.String)
@@ -145,6 +144,43 @@ func (sps StatusProcessorService) getResolver() *net.Resolver {
 	}
 
 	return r
+}
+
+func (sps StatusProcessorService) getResolver2() *dns.Client {
+	return &dns.Client{
+		Timeout: time.Second * 10,
+	}
+}
+
+func (sps StatusProcessorService) lookupMX2(ctx context.Context, domain string) ([]*dns.MX, error) {
+	c := sps.getResolver2()
+
+	// Create a DNS message for MX lookup
+	msg := new(dns.Msg)
+	msg.SetQuestion(dns.Fqdn(domain), dns.TypeMX)
+
+	// Use a reliable DNS server (e.g., Google's 8.8.8.8)
+	dnsServer := "8.8.8.8:53"
+
+	// Perform the query
+	resp, _, err := c.ExchangeContext(ctx, msg, dnsServer)
+	if err != nil {
+		return nil, fmt.Errorf("DNS query failed: %w", err)
+	}
+
+	if resp == nil || resp.Rcode != dns.RcodeSuccess {
+		return nil, fmt.Errorf("failed to get a valid DNS response")
+	}
+
+	// Parse MX records from the response
+	var mxRecords []*dns.MX
+	for _, answer := range resp.Answer {
+		if mx, ok := answer.(*dns.MX); ok {
+			mxRecords = append(mxRecords, mx)
+		}
+	}
+
+	return mxRecords, nil
 }
 
 func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) (int, error) {
