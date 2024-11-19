@@ -35,9 +35,11 @@ func (cds CreateDomainService) CreateDomain(
 		"gmail",
 		"outlook",
 	}
+	domainParts := strings.Split(".", request.Domain)
+	domainFirstPart := domainParts[0]
 
 	for i, _ := range restrictedDomains {
-		if strings.Contains(request.Domain, restrictedDomains[i]) {
+		if domainFirstPart == restrictedDomains[i] {
 			return emptyModel, errors.New("Domain is restricted")
 		}
 	}
