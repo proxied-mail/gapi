@@ -9,7 +9,7 @@ import (
 
 type ProxyBindingBotsRepositoryInterface interface {
 	GetById(id int) (models.ProxyBindingBots, error)
-	GetByPbId(id int) (models.ProxyBindingBots, error)
+	GetByPbId(pbId int) (models.ProxyBindingBots, error)
 }
 
 type ProxyBindingBotsRepository struct {
@@ -28,7 +28,7 @@ func (c ProxyBindingBotsRepository) GetById(id int) (models.ProxyBindingBots, er
 	return model, nil
 }
 
-func (c ProxyBindingBotMessagesRepository) GetByPbId(pbId int) (models.ProxyBindingBots, error) {
+func (c ProxyBindingBotsRepository) GetByPbId(pbId int) (models.ProxyBindingBots, error) {
 	var model models.ProxyBindingBots
 	c.Db.Model(models.ProxyBindingBots{}).Where("proxy_binding_id", pbId).First(&model)
 
