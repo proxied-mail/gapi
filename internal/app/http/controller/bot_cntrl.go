@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/abrouter/gapi/internal/app/http/request/bots_req"
 	"github.com/abrouter/gapi/internal/app/repository"
+	"github.com/abrouter/gapi/internal/app/services/bot_messages"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 	"io"
@@ -13,6 +14,7 @@ import (
 type BotController struct {
 	fx.In
 	repository.ProxyBindingBotMessagesRepositoryInterface
+	bot_messages.MessageSaverServiceInterface
 }
 
 type ReceivedEmailNotifyResponse struct {
@@ -39,10 +41,12 @@ func (bc BotController) ReceivedEmailNotify(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, resp)
 	}
 
-	creatingError := bc.ProxyBindingBotMessagesRepositoryInterface.Create(
-		req.ReceivedEmailId,
-		req.ProxyBindingBotId,
-	)
+	dto := bot_messages.MessageSaverServiceDto{
+		ReceivedEmailId:   req.ReceivedEmailId,
+		ProxyBindingBotId: req.ProxyBindingBotId,
+	}
+	creatingError := bc.MessageSaverServiceInterface.Save(dto)
+
 	if creatingError != nil {
 		resp := ErrorResponse{
 			Message: "unable to create entity in db:" + creatingError.Error(),

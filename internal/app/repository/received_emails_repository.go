@@ -8,7 +8,7 @@ import (
 )
 
 type ReceivedEmailsRepositoryInterface interface {
-	getOneById(id int) (models.ReceivedEmails, error)
+	GetOneById(id int) (models.ReceivedEmails, error)
 }
 
 type ReceivedEmailsRepository struct {
@@ -16,7 +16,7 @@ type ReceivedEmailsRepository struct {
 	Db *gorm.DB
 }
 
-func (r ReceivedEmailsRepository) getOneById(id int) (models.ReceivedEmails, error) {
+func (r ReceivedEmailsRepository) GetOneById(id int) (models.ReceivedEmails, error) {
 	model := models.ReceivedEmails{}
 	r.Db.Model(model).Where("id", id).First(&model)
 	if model.Id < 1 {
