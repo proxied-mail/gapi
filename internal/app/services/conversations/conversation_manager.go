@@ -39,6 +39,7 @@ func (cm ConversationManager) MessageReceived(
 	isExpired := time.Now().Unix() > lastMessageDate.Unix()+int64(pbBot.SessionLength)
 
 	if isExpired {
+		cm.ProxyBindingBotConversationsRepositoryInterface.DeactivateConversations(pbBot.Id, email.SenderEmail)
 		conv, err := cm.CreateConversation(pbBot.Id, email.SenderEmail)
 		if err != nil {
 			return models.ProxyBindingBotConversations{}, err
@@ -50,6 +51,13 @@ func (cm ConversationManager) MessageReceived(
 		pbBot.Id,
 		email.SenderEmail,
 	)
+
+	_ = cm.ProxyBindingBotConversationsRepositoryInterface.DeactivateConversationsExcept(
+		pbBot.Id,
+		email.SenderEmail,
+		lastConv.Id,
+	)
+
 	if err3 != nil {
 		return lastConv, err3
 	}

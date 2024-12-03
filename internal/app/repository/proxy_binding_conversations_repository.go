@@ -13,6 +13,8 @@ type ProxyBindingBotConversationsRepositoryInterface interface {
 	UpdateLastMessageReceived(pbBotId int, sender string) error
 	UpdateLastMessageSent(pbBotId int, sender string) error
 	CreateConversation(pbBotId int, sender string) (models.ProxyBindingBotConversations, error)
+	DeactivateConversations(pbBotId int, sender string) error
+	DeactivateConversationsExcept(pbBotId int, sender string, exceptionId int) error
 }
 
 type ProxyBindingBotConversationsRepository struct {
@@ -32,6 +34,33 @@ func (r ProxyBindingBotConversationsRepository) GetLatest(
 	}
 
 	return model, nil
+}
+
+func (r ProxyBindingBotConversationsRepository) DeactivateConversations(
+	pbBotId int,
+	sender string,
+) error {
+	r.Db.Where("pb_bot_id", pbBotId).Where("sender_email", sender).Update(
+		"status",
+		models.CONVERSATION_STATUS_NOT_ACTIVE,
+	)
+	return nil
+}
+
+func (r ProxyBindingBotConversationsRepository) DeactivateConversationsExcept(
+	pbBotId int,
+	sender string,
+	exceptionId int,
+) error {
+	r.Db.Where("pb_bot_id", pbBotId).Where("sender_email", sender).Where(
+		"id != ?",
+		exceptionId,
+	).Update(
+		"status",
+		models.CONVERSATION_STATUS_NOT_ACTIVE,
+	)
+
+	return nil
 }
 
 func (r ProxyBindingBotConversationsRepository) UpdateLastMessageReceived(
@@ -76,6 +105,7 @@ func (r ProxyBindingBotConversationsRepository) CreateConversation(
 	model.ReceivedMessagesCount = 1
 	model.SentMessagesCount = 0
 	model.SenderEmail = sender
+	model.Status = models.CONVERSATION_STATUS_ACTIVE
 	model.ProxyBindingId = proxyBindingBot.ProxyBindingId
 	model.PbBotId = proxyBindingBot.Id
 	model.LastMessageAt = time.Now()
