@@ -14,6 +14,7 @@ type ProxyBindingBotMessagesRepositoryInterface interface {
 		sender string,
 		conversationId int,
 	) error
+	Query(pbBotId int, lastProxyBinding int) []models.ProxyBindingBotMessages
 }
 
 type ProxyBindingBotMessagesRepository struct {
@@ -39,4 +40,19 @@ func (c ProxyBindingBotMessagesRepository) Create(
 	c.Db.Save(&model)
 
 	return nil
+}
+
+func (c ProxyBindingBotMessagesRepository) Query(
+	pbBotId int,
+	lastProxyBinding int,
+) []models.ProxyBindingBotMessages {
+	q := c.Db.Where("PbBotId", pbBotId)
+	if lastProxyBinding > 0 {
+		q = q.Where("id > ?", lastProxyBinding)
+	}
+
+	var modelsList []models.ProxyBindingBotMessages
+	q.Find(&modelsList)
+
+	return modelsList
 }
