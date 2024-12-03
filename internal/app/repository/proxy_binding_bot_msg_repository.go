@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"errors"
+	"database/sql"
 	"github.com/abrouter/gapi/internal/app/models"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -9,34 +9,32 @@ import (
 
 type ProxyBindingBotMessagesRepositoryInterface interface {
 	Create(
+		pbBot models.ProxyBindingBots,
 		receivedEmail int,
-		pbBotId int,
+		sender string,
+		conversationId int,
 	) error
 }
 
 type ProxyBindingBotMessagesRepository struct {
 	fx.In
-	ProxyBindingBotsRepositoryInterface
-	ReceivedEmailsRepositoryInterface
 	Db *gorm.DB
 }
 
-func (c ProxyBindingBotMessagesRepository) Create(receivedEmail int, pbBotId int) error {
-	pbBot, pbBotErr := c.ProxyBindingBotsRepositoryInterface.getById(pbBotId)
-	if pbBotErr != nil {
-		return errors.New("cant find bot")
-	}
-
-	receivedEmailModel, errorReceived := c.ReceivedEmailsRepositoryInterface.getOneById(receivedEmail)
-	if errorReceived != nil {
-		return errors.New("Cannot find the received email")
-	}
-
+func (c ProxyBindingBotMessagesRepository) Create(
+	pbBot models.ProxyBindingBots,
+	receivedEmail int,
+	sender string,
+	conversationId int,
+) error {
 	model := models.ProxyBindingBotMessages{
 		ReceivedEmailId: receivedEmail,
-		PbBotId:         pbBotId,
+		PbBotId:         pbBot.Id,
 		ProxyBindingId:  pbBot.ProxyBindingId,
-		SenderEmail:     receivedEmailModel.SenderEmail,
+		SenderEmail:     sender,
+		ConversationId: sql.NullInt64{
+			Int64: int64(conversationId),
+		},
 	}
 	c.Db.Save(&model)
 

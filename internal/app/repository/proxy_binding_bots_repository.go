@@ -8,7 +8,7 @@ import (
 )
 
 type ProxyBindingBotsRepositoryInterface interface {
-	getById(id int) (models.ProxyBindingBots, error)
+	GetById(id int) (models.ProxyBindingBots, error)
 }
 
 type ProxyBindingBotsRepository struct {
@@ -16,7 +16,7 @@ type ProxyBindingBotsRepository struct {
 	Db *gorm.DB
 }
 
-func (c ProxyBindingBotsRepository) getById(id int) (models.ProxyBindingBots, error) {
+func (c ProxyBindingBotsRepository) GetById(id int) (models.ProxyBindingBots, error) {
 	var model models.ProxyBindingBots
 	c.Db.Model(models.ProxyBindingBots{}).Where("id", id).First(&model)
 
