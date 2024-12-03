@@ -19,6 +19,7 @@ type api struct {
 	controller.UiTestController
 	controller.WhoisCntrl
 	controller.SettingsController
+	controller.BotController
 }
 
 func ConfigureApiRoutes(
@@ -61,4 +62,12 @@ func ConfigureApiRoutes(
 
 	e.GET("/gapi/jobs-status", api.JobsController.Status)
 	e.GET("/gapi/basic-ui-test", api.UiTestController.Basic)
+
+	/**`
+	bots_req
+	*/
+	e.POST(
+		"/internal/proxy-binding-bots-req/notify/received-email",
+		api.BotController.ReceivedEmailNotify,
+	)
 }

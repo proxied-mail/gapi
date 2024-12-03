@@ -12,8 +12,9 @@ import (
 func main() {
 
 	MysqlRwConnectionProvider := provider.MysqlRwConnectionProvider{}
+	bindings := app.ProvideFxBindings()
 
-	fx.New(
+	fxOptions := []fx.Option{
 		fx.Provide(
 			provider.EchoProvider,
 			MysqlRwConnectionProvider.Connect,
@@ -22,6 +23,13 @@ func main() {
 				return entityId.Encoder{}
 			},
 		),
+	}
+	fxOptions = append(
+		fxOptions,
+		bindings...,
+	)
+	fxOptions = append(
+		fxOptions,
 		fx.Invoke(
 			boot.ParseFlags,
 			env.ReadEnv,
@@ -29,5 +37,7 @@ func main() {
 			app.ConfigureApiRoutes,
 			app.StartHttpServer,
 		),
-	).Run()
+	)
+
+	fx.New(fxOptions...).Run()
 }
