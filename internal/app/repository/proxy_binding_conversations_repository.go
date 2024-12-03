@@ -73,7 +73,7 @@ func (r ProxyBindingBotConversationsRepository) CreateConversation(
 		return model, errors.New("cant find proxy binding bot")
 	}
 
-	model.ReceivedMessagesCount = 0
+	model.ReceivedMessagesCount = 1
 	model.SentMessagesCount = 0
 	model.SenderEmail = sender
 	model.ProxyBindingId = proxyBindingBot.ProxyBindingId
