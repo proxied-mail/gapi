@@ -5,7 +5,6 @@ import (
 	"crypto/md5"
 	b64 "encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	easydkim "github.com/abrouter/gapi/pkg/mail_delivery/dkim"
 	"gopkg.in/gomail.v2"
@@ -183,11 +182,11 @@ func SendMail(authData SendMailAuthData, sendMailCommand SendMailCommand) error 
 			message = []byte(b64.StdEncoding.EncodeToString(message))
 			message, _ = b64.StdEncoding.DecodeString(string(message))
 			//json encode message into single array to l
-			json5, _ := json.Marshal(
-				[]string{string(message)},
-			)
-
-			fmt.Println(string(json5))
+			//json5, _ := json.Marshal(
+			//	[]string{string(message)},
+			//)
+			//
+			//fmt.Println(string(json5))
 		}
 	}
 

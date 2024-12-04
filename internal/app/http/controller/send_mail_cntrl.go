@@ -63,7 +63,7 @@ func (smc SendMailCntrl) Create(c echo.Context) error {
 
 	sendMailResult := mail_delivery.SendMail(req.Auth, req.Mail)
 	if sendMailResult != nil {
-		fmt.Println(sendMailResult)
+		fmt.Println("Alert. Mail delivery issue:", sendMailResult)
 		return c.String(http.StatusOK, "Error")
 	}
 
