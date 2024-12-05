@@ -46,7 +46,7 @@ func (c ProxyBindingBotMessagesRepository) Query(
 	pbBotId int,
 	lastProxyBinding int,
 ) []models.ProxyBindingBotMessages {
-	q := c.Db.Where("PbBotId", pbBotId)
+	q := c.Db.Where("pb_bot_id", pbBotId)
 	if lastProxyBinding > 0 {
 		q = q.Where("id > ?", lastProxyBinding)
 	}

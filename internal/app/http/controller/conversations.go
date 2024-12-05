@@ -2,6 +2,7 @@ package controller
 
 import (
 	http2 "github.com/abrouter/gapi/internal/app/http"
+	"github.com/abrouter/gapi/internal/app/http/response/conversation_messages_rsp"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/access_checker"
 	"github.com/abrouter/gapi/pkg/entityId"
@@ -17,7 +18,9 @@ type ConversationsController struct {
 	entityId.Encoder
 	repository.ProxyBindingBotMessagesRepositoryInterface
 	repository.ProxyBindingBotsRepositoryInterface
+	repository.ReceivedEmailsRepositoryInterface
 	access_checker.AccessChecker
+	conversation_messages_rsp.ConversationMessagesTransformer
 }
 
 func (con ConversationsController) GetMessages(c echo.Context) error {
@@ -61,7 +64,14 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, ErrorResponse{Message: "Bot is not found"})
 	}
 
-	con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded))
+	models := con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded))
+	var receivedEmailsIds []int
+	for _, model := range models {
+		receivedEmailsIds = append(receivedEmailsIds, model.ReceivedEmailId)
+	}
 
-	return nil
+	receivedEmails, _ := con.ReceivedEmailsRepositoryInterface.GetIn(receivedEmailsIds)
+	rsp := con.ConversationMessagesTransformer.Transform(models, receivedEmails)
+
+	return c.JSON(http.StatusOK, rsp)
 }

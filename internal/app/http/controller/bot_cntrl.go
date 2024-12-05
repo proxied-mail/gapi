@@ -5,6 +5,7 @@ import (
 	"github.com/abrouter/gapi/internal/app/http/request/bots_req"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/bot_messages"
+	"github.com/abrouter/gapi/pkg/entityId"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 	"io"
@@ -15,10 +16,16 @@ type BotController struct {
 	fx.In
 	repository.ProxyBindingBotMessagesRepositoryInterface
 	bot_messages.MessageSaverServiceInterface
+	entityId.Encoder
 }
 
 type ReceivedEmailNotifyResponse struct {
 	Status bool `json:"status"`
+}
+
+type ReceivedEmailNotifyResponseWithId struct {
+	Status bool   `json:"status"`
+	Id     string `json:"id"`
 }
 
 func (bc BotController) ReceivedEmailNotify(c echo.Context) error {
@@ -45,7 +52,7 @@ func (bc BotController) ReceivedEmailNotify(c echo.Context) error {
 		ReceivedEmailId:   req.ReceivedEmailId,
 		ProxyBindingBotId: req.ProxyBindingBotId,
 	}
-	creatingError := bc.MessageSaverServiceInterface.Save(dto)
+	pbbBot, creatingError := bc.MessageSaverServiceInterface.Save(dto)
 
 	if creatingError != nil {
 		resp := ErrorResponse{
@@ -55,8 +62,10 @@ func (bc BotController) ReceivedEmailNotify(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, resp)
 	}
 
-	rsp2 := ReceivedEmailNotifyResponse{
+	pbId := bc.Encoder.Encode(pbbBot.ProxyBindingId, "proxy_bindings")
+	rsp2 := ReceivedEmailNotifyResponseWithId{
 		Status: true,
+		Id:     pbId,
 	}
 
 	return c.JSON(http.StatusCreated, rsp2)

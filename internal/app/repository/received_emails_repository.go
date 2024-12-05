@@ -9,6 +9,7 @@ import (
 
 type ReceivedEmailsRepositoryInterface interface {
 	GetOneById(id int) (models.ReceivedEmails, error)
+	GetIn(ids []int) (map[int]models.ReceivedEmails, error)
 }
 
 type ReceivedEmailsRepository struct {
@@ -24,4 +25,16 @@ func (r ReceivedEmailsRepository) GetOneById(id int) (models.ReceivedEmails, err
 	}
 
 	return model, nil
+}
+
+func (r ReceivedEmailsRepository) GetIn(ids []int) (map[int]models.ReceivedEmails, error) {
+	var result []models.ReceivedEmails
+	r.Db.Model(models.ReceivedEmails{}).Where("id IN (?)", ids).Find(&result)
+	newModels := make(map[int]models.ReceivedEmails, 0)
+
+	for _, model := range result {
+		newModels[model.Id] = model
+	}
+
+	return newModels, nil
 }
