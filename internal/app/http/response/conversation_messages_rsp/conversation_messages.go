@@ -29,8 +29,10 @@ func (cmt ConversationMessagesTransformer) Transform(
 	receivedEmails map[int]models.ReceivedEmails,
 ) ConversationMessagesResponse {
 	response := ConversationMessagesResponse{}
+
+	var id string
 	for _, model := range models {
-		id := cmt.Encoder.Encode(model.Id, "proxy_binding_bot_messages")
+		id = cmt.Encoder.Encode(model.Id, "proxy_binding_bot_messages")
 		conversationId := cmt.Encoder.Encode(
 			int(model.ConversationId.Int64),
 			"proxy_binding_bot_conversations",
@@ -47,6 +49,7 @@ func (cmt ConversationMessagesTransformer) Transform(
 			Message:        transformedReceivedEmail,
 		})
 	}
+	response.LastId = id
 
 	return response
 }
