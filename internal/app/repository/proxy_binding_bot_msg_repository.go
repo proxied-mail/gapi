@@ -55,6 +55,11 @@ func (c ProxyBindingBotMessagesRepository) Query(
 	q = q.Joins(
 		"JOIN proxy_binding_bot_conversations pbbc on proxy_binding_bot_messages.conversation_id = pbbc.id ",
 	)
+	q = q.Joins(
+		"Join proxy_binding_bots pbp on pbp.bot_id=pbbc.pb_bot_id",
+	)
+	q = q.Where("pbp.status = ?", models.PB_BOT_STATUS_ACTIVE)
+
 	q.Where("pbbc.status = ?", 1)
 
 	var modelsList []models.ProxyBindingBotMessages
@@ -75,6 +80,8 @@ func (c ProxyBindingBotMessagesRepository) QueryByBotUid(
 		"Join proxy_binding_bots pbp on pbp.bot_id=pbbc.pb_bot_id",
 	)
 	q = q.Joins("join bots on bots.id = pbp.bot_id")
+	q = q.Where("pbp.status = ?", models.PB_BOT_STATUS_ACTIVE)
+
 	q.Where("pbbc.status = ?", 1)
 	if lastProxyBinding > 0 {
 		q = q.Where("proxy_binding_bot_messages.id > ?", lastProxyBinding)

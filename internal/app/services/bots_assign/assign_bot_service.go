@@ -2,7 +2,6 @@ package bots_assign
 
 import (
 	"errors"
-	"fmt"
 	"github.com/abrouter/gapi/internal/app/http/request/bots_req"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/internal/app/repository"
@@ -55,7 +54,6 @@ func (abs AssignBotService) AssignBot(
 	}
 
 	e, _ := abs.ProxyBindingBotsRepositoryInterface.GetByPbId(pbModel.Id)
-	fmt.Println(e, pbModel.Id)
 	if e.Id > 0 {
 		return model, errors.New("bot is already exists")
 	}

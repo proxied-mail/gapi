@@ -2,6 +2,9 @@ package models
 
 import "time"
 
+const PB_BOT_STATUS_ACTIVE = 3
+const PB_BOT_STATUS_UNACTIVE = 2
+
 type ProxyBindingBots struct {
 	Id               int       `json:"id"`
 	BotId            int       `json:"bot_id"`
