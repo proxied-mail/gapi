@@ -15,6 +15,7 @@ type ProxyBindingBotMessagesRepositoryInterface interface {
 		conversationId int,
 	) error
 	Query(pbBotId int, lastProxyBinding int) []models.ProxyBindingBotMessages
+	QueryByBotUid(pbBotUid string, lastProxyBinding int) []models.ProxyBindingBotMessages
 }
 
 type ProxyBindingBotMessagesRepository struct {
@@ -55,6 +56,29 @@ func (c ProxyBindingBotMessagesRepository) Query(
 		"JOIN proxy_binding_bot_conversations pbbc on proxy_binding_bot_messages.conversation_id = pbbc.id ",
 	)
 	q.Where("pbbc.status = ?", 1)
+
+	var modelsList []models.ProxyBindingBotMessages
+	q.Find(&modelsList)
+
+	return modelsList
+}
+
+func (c ProxyBindingBotMessagesRepository) QueryByBotUid(
+	pbBotId string,
+	lastProxyBinding int,
+) []models.ProxyBindingBotMessages {
+	q := c.Db.Table("proxy_binding_bot_messages").Where("bots.uid = ?", pbBotId)
+	q = q.Joins(
+		"JOIN proxy_binding_bot_conversations pbbc on proxy_binding_bot_messages.conversation_id = pbbc.id",
+	)
+	q = q.Joins(
+		"Join proxy_binding_bots pbp on pbp.bot_id=pbbc.pb_bot_id",
+	)
+	q = q.Joins("join bots on bots.id = pbp.bot_id")
+	q.Where("pbbc.status = ?", 1)
+	if lastProxyBinding > 0 {
+		q = q.Where("proxy_binding_bot_messages.id > ?", lastProxyBinding)
+	}
 
 	var modelsList []models.ProxyBindingBotMessages
 	q.Find(&modelsList)

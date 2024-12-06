@@ -30,6 +30,9 @@ func ProvideFxBindings() []fx.Option {
 			func(s bot_messages.MessageSaverService) bot_messages.MessageSaverServiceInterface {
 				return s
 			},
+			func(s repository.BotsRepository) repository.BotsRepositoryInterface {
+				return s
+			},
 		),
 	}
 }
