@@ -155,7 +155,10 @@ curl --location 'http://localhost:9900/gapi/proxy-binding-bots/assign' \
 --header 'Authorization: ••••••' \
 --data '{
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
-    "session_length": 30
+    "session_length": 30,
+    "config": {
+        "a": "b"
+    }
 }'
 ```
 
@@ -169,7 +172,10 @@ curl --location --request PATCH 'http://localhost:9900/gapi/proxy-binding-bots/b
 --data '{
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
     "session_length": 29,
-    "status": 1
+    "status": 1,
+    "config": {
+        "a": "b"
+    }
 }'
 ```
 

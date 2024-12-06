@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	http2 "github.com/abrouter/gapi/internal/app/http"
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/access_checker"
@@ -26,10 +27,11 @@ type PbBotResponse struct {
 }
 
 type PbBotResponseItem struct {
-	Status           int `json:"status"`
-	SessionLength    int `json:"session_length"`
-	MessagesReceived int `json:"messages_received"`
-	MessagesSent     int `json:"messages_sent"`
+	Status           int         `json:"status"`
+	SessionLength    int         `json:"session_length"`
+	Config           interface{} `json:"config"`
+	MessagesReceived int         `json:"messages_received"`
+	MessagesSent     int         `json:"messages_sent"`
 }
 
 func (con PbBotGetController) Get(c echo.Context) error {
@@ -62,8 +64,13 @@ func (con PbBotGetController) Get(c echo.Context) error {
 	m, _ := con.GetByPbId(pb.Id)
 	rsp := PbBotResponse{}
 	if m.Id > 0 {
+
+		var jsonConfig interface{}
+		json.Unmarshal([]byte(m.Config.String), &jsonConfig)
+
 		rsp.Items = append(rsp.Items, PbBotResponseItem{
 			Status:           m.Status,
+			Config:           jsonConfig,
 			SessionLength:    m.SessionLength,
 			MessagesReceived: 0,
 			MessagesSent:     0,

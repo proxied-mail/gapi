@@ -1,6 +1,8 @@
 package bots_assign
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"github.com/abrouter/gapi/internal/app/http/request/bots_req"
 	"github.com/abrouter/gapi/internal/app/models"
@@ -60,7 +62,10 @@ func (abs UpdateBotService) UpdateBot(
 		return model, e
 	}
 
+	json3, _ := json.Marshal(request.Config)
+
 	m.Status = request.Status
+	m.Config = sql.NullString{String: string(json3), Valid: true}
 	m.SessionLength = request.SessionLength
 	m.BotId = botId
 	abs.DB.Save(&m)
