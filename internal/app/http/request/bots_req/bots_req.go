@@ -10,3 +10,10 @@ type AssignBotRequest struct {
 	ProxyBinding  string `json:"proxy_binding_id" validate:"required"`
 	SessionLength int    `json:"session_length" validate:"required"`
 }
+
+type UpdateRequest struct {
+	ProxyBinding  string `json:"proxy_binding_id" validate:"required"`
+	SessionLength int    `json:"session_length" validate:"required"`
+	Status        int    `json:"status"`
+	BotUid        string `json:"bot_uid"`
+}

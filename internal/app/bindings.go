@@ -37,6 +37,9 @@ func ProvideFxBindings() []fx.Option {
 			func(s bots_assign.AssignBotService) bots_assign.AssignBotServiceInterface {
 				return s
 			},
+			func(s bots_assign.UpdateBotService) bots_assign.UpdateBotServiceInterface {
+				return s
+			},
 		),
 	}
 }

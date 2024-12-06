@@ -22,6 +22,7 @@ type api struct {
 	controller.BotController
 	controller.ConversationsController
 	controller.AssignBotController
+	controller.UpdateBotController
 }
 
 func ConfigureApiRoutes(
@@ -76,7 +77,10 @@ func ConfigureApiRoutes(
 		"/gapi/proxy-binding-bots/assign",
 		api.AssignBotController.AssignBot,
 	)
-
+	e.PATCH(
+		"/gapi/proxy-binding-bots/bot",
+		api.UpdateBotController.UpdateBot,
+	)
 	e.GET(
 		"/gapi/bot/conversations",
 		api.ConversationsController.GetMessages,
