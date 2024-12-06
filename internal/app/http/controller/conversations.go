@@ -9,6 +9,7 @@ import (
 	"github.com/abrouter/gapi/pkg/entityId"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 	"net/http"
 )
 
@@ -23,6 +24,7 @@ type ConversationsController struct {
 	access_checker.AccessChecker
 	conversation_messages_rsp.ConversationMessagesTransformer
 	repository.BotsRepositoryInterface
+	*gorm.DB
 }
 
 func (con ConversationsController) GetMessages(c echo.Context) error {
@@ -35,6 +37,8 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 	}
 
 	botUid := c.QueryParam("botUid")
+	onlyUnreadParam := c.QueryParam("onlyUnread")
+	onlyUnread := onlyUnreadParam == "1"
 
 	proxyBindingId := c.QueryParam("proxyBinding")
 	var proxyBindingDecoded int64
@@ -78,7 +82,7 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 			return c.JSON(http.StatusNotFound, ErrorResponse{Message: "Bot is not found"})
 		}
 
-		models = con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded))
+		models = con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded), onlyUnread)
 	} else {
 
 		bot := con.BotsRepositoryInterface.GetByUid(botUid)
@@ -86,11 +90,13 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 			return c.JSON(http.StatusForbidden, ErrorResponse{Message: "Dont have an access to the bot"})
 		}
 
-		models = con.ProxyBindingBotMessagesRepositoryInterface.QueryByBotUid(botUid, int(lastIdDecoded))
+		models = con.ProxyBindingBotMessagesRepositoryInterface.QueryByBotUid(botUid, int(lastIdDecoded), onlyUnread)
 	}
 
 	var receivedEmailsIds []int
 	for _, model := range models {
+		model.Read = true
+		con.Save(&model)
 		receivedEmailsIds = append(receivedEmailsIds, model.ReceivedEmailId)
 	}
 

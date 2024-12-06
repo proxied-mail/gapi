@@ -15,6 +15,7 @@ type ConversationMessagesResponse struct {
 type ConversationMessagesResponseMessage struct {
 	Id             string                           `json:"id"`
 	ConversationId string                           `json:"conversationId"`
+	Read           bool                             `json:"read"`
 	Message        received_emalis.ReceivedEmailDTO `json:"message"`
 }
 
@@ -47,6 +48,7 @@ func (cmt ConversationMessagesTransformer) Transform(
 			Id:             id,
 			ConversationId: conversationId,
 			Message:        transformedReceivedEmail,
+			Read:           model.Read,
 		})
 	}
 	response.LastId = id
