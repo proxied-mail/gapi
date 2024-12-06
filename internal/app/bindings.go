@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/abrouter/gapi/internal/app/repository"
 	"github.com/abrouter/gapi/internal/app/services/bot_messages"
+	"github.com/abrouter/gapi/internal/app/services/bots_assign"
 	"github.com/abrouter/gapi/internal/app/services/conversations"
 	"go.uber.org/fx"
 )
@@ -31,6 +32,9 @@ func ProvideFxBindings() []fx.Option {
 				return s
 			},
 			func(s repository.BotsRepository) repository.BotsRepositoryInterface {
+				return s
+			},
+			func(s bots_assign.AssignBotService) bots_assign.AssignBotServiceInterface {
 				return s
 			},
 		),

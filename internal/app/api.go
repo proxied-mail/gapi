@@ -21,6 +21,7 @@ type api struct {
 	controller.SettingsController
 	controller.BotController
 	controller.ConversationsController
+	controller.AssignBotController
 }
 
 func ConfigureApiRoutes(
@@ -71,9 +72,13 @@ func ConfigureApiRoutes(
 		"/internal/proxy-binding-bots-req/notify/received-email",
 		api.BotController.ReceivedEmailNotify,
 	)
+	e.POST(
+		"/gapi/proxy-binding-bots/assign",
+		api.AssignBotController.AssignBot,
+	)
+
 	e.GET(
 		"/gapi/bot/conversations",
 		api.ConversationsController.GetMessages,
 	)
-
 }
