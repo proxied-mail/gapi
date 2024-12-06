@@ -44,6 +44,7 @@ func (c ProxyBindingBotsRepository) GetByPbId(pbId int) (models.ProxyBindingBots
 func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength int) models.ProxyBindingBots {
 	model := models.ProxyBindingBots{}
 	model.BotId = botId
+	model.Status = 3
 	model.ProxyBindingId = pbId
 	model.SessionLength = sessionLength
 	model.CreatedAt = time.Now()
