@@ -36,7 +36,7 @@ func (cm ConversationManager) MessageReceived(
 		return conv, nil
 	}
 	lastMessageDate := lastConv.LastMessageAt
-	isExpired := time.Now().Unix() > lastMessageDate.Unix()+int64(pbBot.SessionLength)
+	isExpired := time.Now().Unix() > lastMessageDate.Unix()+(int64(pbBot.SessionLength)*60)
 
 	if isExpired {
 		cm.ProxyBindingBotConversationsRepositoryInterface.DeactivateConversations(pbBot.Id, email.SenderEmail)

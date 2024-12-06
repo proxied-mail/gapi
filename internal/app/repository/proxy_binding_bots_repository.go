@@ -5,11 +5,13 @@ import (
 	"github.com/abrouter/gapi/internal/app/models"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+	"time"
 )
 
 type ProxyBindingBotsRepositoryInterface interface {
 	GetById(id int) (models.ProxyBindingBots, error)
 	GetByPbId(pbId int) (models.ProxyBindingBots, error)
+	Create(botId int, pbId int, sessionLength int) models.ProxyBindingBots
 }
 
 type ProxyBindingBotsRepository struct {
@@ -37,4 +39,17 @@ func (c ProxyBindingBotsRepository) GetByPbId(pbId int) (models.ProxyBindingBots
 	}
 
 	return model, nil
+}
+
+func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength int) models.ProxyBindingBots {
+	model := models.ProxyBindingBots{}
+	model.BotId = botId
+	model.ProxyBindingId = pbId
+	model.SessionLength = sessionLength
+	model.CreatedAt = time.Now()
+	model.UpdatedAt = time.Now()
+
+	c.Db.Save(&model)
+
+	return model
 }
