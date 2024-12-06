@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"github.com/abrouter/gapi/internal/app/models"
 	"go.uber.org/fx"
@@ -11,7 +13,7 @@ import (
 type ProxyBindingBotsRepositoryInterface interface {
 	GetById(id int) (models.ProxyBindingBots, error)
 	GetByPbId(pbId int) (models.ProxyBindingBots, error)
-	Create(botId int, pbId int, sessionLength int) models.ProxyBindingBots
+	Create(botId int, pbId int, sessionLength int, config map[string]interface{}) models.ProxyBindingBots
 }
 
 type ProxyBindingBotsRepository struct {
@@ -41,10 +43,14 @@ func (c ProxyBindingBotsRepository) GetByPbId(pbId int) (models.ProxyBindingBots
 	return model, nil
 }
 
-func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength int) models.ProxyBindingBots {
+func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength int, config map[string]interface{}) models.ProxyBindingBots {
+
+	json3, _ := json.Marshal(config)
+
 	model := models.ProxyBindingBots{}
 	model.BotId = botId
 	model.Status = models.PB_BOT_STATUS_ACTIVE
+	model.Config = sql.NullString{String: string(json3), Valid: true}
 	model.ProxyBindingId = pbId
 	model.SessionLength = sessionLength
 	model.CreatedAt = time.Now()
