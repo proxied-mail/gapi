@@ -138,3 +138,44 @@ Same cURL as PATCH, but GET. Response:
 ]
 ```
 
+
+
+### Get conversation messages 
+
+```bash
+curl --location 'http://localhost:9900/gapi/bot/conversations?proxyBinding=F9ADE240-9000-0000-00000BAE&lastId=' \
+--header 'Authorization: ••••••'
+```
+
+### assign bot
+
+```
+curl --location 'http://localhost:9900/gapi/proxy-binding-bots/assign' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: ••••••' \
+--data '{
+    "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
+    "session_length": 30
+}'
+```
+
+
+### Update assigned bot
+
+```bash
+curl --location --request PATCH 'http://localhost:9900/gapi/proxy-binding-bots/bot?proxyBinding=F9ADE240-9000-0000-00000BAE&lastId=' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: ••••••' \
+--data '{
+    "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
+    "session_length": 29,
+    "status": 1
+}'
+```
+
+### View 
+
+```bash
+curl --location 'http://localhost:9900/gapi/proxy-binding-bots/get?proxyBinding=4BD2D240-9000-0000-00000BAE' \
+--header 'Authorization: ••••••'
+```
