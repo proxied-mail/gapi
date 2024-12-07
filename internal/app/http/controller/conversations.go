@@ -65,7 +65,7 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, ErrorResponse{Message: "Access Denied"})
 	}
 
-	var models []models2.ProxyBindingBotMessages
+	var modelsList []models2.ProxyBindingBotMessages
 	if proxyBindingDecoded > 0 {
 		pb := con.ProxyBindingRepository.GetById(int(proxyBindingDecoded))
 		if pb.Id < 1 {
@@ -82,7 +82,7 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 			return c.JSON(http.StatusNotFound, ErrorResponse{Message: "Bot is not found"})
 		}
 
-		models = con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded), onlyUnread)
+		modelsList = con.ProxyBindingBotMessagesRepositoryInterface.Query(pbBot.Id, int(lastIdDecoded), onlyUnread)
 	} else {
 
 		bot := con.BotsRepositoryInterface.GetByUid(botUid)
@@ -90,18 +90,22 @@ func (con ConversationsController) GetMessages(c echo.Context) error {
 			return c.JSON(http.StatusForbidden, ErrorResponse{Message: "Dont have an access to the bot"})
 		}
 
-		models = con.ProxyBindingBotMessagesRepositoryInterface.QueryByBotUid(botUid, int(lastIdDecoded), onlyUnread)
+		modelsList = con.ProxyBindingBotMessagesRepositoryInterface.QueryByBotUid(botUid, int(lastIdDecoded), onlyUnread)
 	}
 
 	var receivedEmailsIds []int
-	for _, model := range models {
+	proxyBindingBotsIds := make(map[int]int, 0)
+	for _, model := range modelsList {
 		model.Read = true
 		con.Save(&model)
 		receivedEmailsIds = append(receivedEmailsIds, model.ReceivedEmailId)
+		proxyBindingBotsIds[model.PbBotId] = model.PbBotId
 	}
 
+	pbBots := con.ProxyBindingBotsRepositoryInterface.GetByIdIn(proxyBindingBotsIds)
+
 	receivedEmails, _ := con.ReceivedEmailsRepositoryInterface.GetIn(receivedEmailsIds)
-	rsp := con.ConversationMessagesTransformer.Transform(models, receivedEmails)
+	rsp := con.ConversationMessagesTransformer.Transform(modelsList, receivedEmails, pbBots)
 
 	return c.JSON(http.StatusOK, rsp)
 }

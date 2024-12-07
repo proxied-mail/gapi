@@ -1,6 +1,7 @@
 package conversation_messages_rsp
 
 import (
+	"encoding/json"
 	"github.com/abrouter/gapi/internal/app/models"
 	"github.com/abrouter/gapi/internal/app/services/received_emalis"
 	"github.com/abrouter/gapi/pkg/entityId"
@@ -8,15 +9,25 @@ import (
 )
 
 type ConversationMessagesResponse struct {
-	Messages []ConversationMessagesResponseMessage `json:"messages"`
-	LastId   string                                `json:"lastId"`
+	ProxyBindingBots map[string]ProxyBindingBotResponse    `json:"proxyBindingBots"`
+	Messages         []ConversationMessagesResponseMessage `json:"messages"`
+	LastId           string                                `json:"lastId"`
+}
+
+type ProxyBindingBotResponse struct {
+	Id            string      `json:"id"`
+	Status        int         `json:"status"`
+	SessionLength int         `json:"session_length"`
+	Config        interface{} `json:"config"`
 }
 
 type ConversationMessagesResponseMessage struct {
-	Id             string                           `json:"id"`
-	ConversationId string                           `json:"conversationId"`
-	Read           bool                             `json:"read"`
-	Message        received_emalis.ReceivedEmailDTO `json:"message"`
+	Id                string                           `json:"id"`
+	ConversationId    string                           `json:"conversationId"`
+	Read              bool                             `json:"read"`
+	Message           received_emalis.ReceivedEmailDTO `json:"message"`
+	ProxyBindingId    string                           `json:"proxyBindingId"`
+	ProxyBindingBotId string                           `json:"proxyBindingBotId"`
 }
 
 type ConversationMessagesTransformer struct {
@@ -28,6 +39,7 @@ type ConversationMessagesTransformer struct {
 func (cmt ConversationMessagesTransformer) Transform(
 	models []models.ProxyBindingBotMessages,
 	receivedEmails map[int]models.ReceivedEmails,
+	pbBots []models.ProxyBindingBots,
 ) ConversationMessagesResponse {
 	response := ConversationMessagesResponse{}
 
@@ -45,12 +57,29 @@ func (cmt ConversationMessagesTransformer) Transform(
 		}
 
 		response.Messages = append(response.Messages, ConversationMessagesResponseMessage{
-			Id:             id,
-			ConversationId: conversationId,
-			Message:        transformedReceivedEmail,
-			Read:           model.Read,
+			Id:                id,
+			ConversationId:    conversationId,
+			Message:           transformedReceivedEmail,
+			Read:              model.Read,
+			ProxyBindingId:    cmt.Encoder.Encode(model.ProxyBindingId, "proxy_bindings"),
+			ProxyBindingBotId: cmt.Encoder.Encode(model.PbBotId, "proxy_binding_bots"),
 		})
 	}
+
+	response.ProxyBindingBots = make(map[string]ProxyBindingBotResponse, 0)
+	for _, pbBot := range pbBots {
+		var config interface{}
+		json.Unmarshal([]byte(pbBot.Config.String), &config)
+
+		proxyBindingBot := cmt.Encoder.Encode(pbBot.Id, "proxy_binding_bots")
+		response.ProxyBindingBots[proxyBindingBot] = ProxyBindingBotResponse{
+			Id:            cmt.Encoder.Encode(pbBot.Id, "proxy_binding_bots"),
+			Status:        pbBot.Status,
+			SessionLength: pbBot.SessionLength,
+			Config:        config,
+		}
+	}
+
 	response.LastId = id
 
 	return response

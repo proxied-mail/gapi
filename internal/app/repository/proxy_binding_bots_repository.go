@@ -14,6 +14,7 @@ type ProxyBindingBotsRepositoryInterface interface {
 	GetById(id int) (models.ProxyBindingBots, error)
 	GetByPbId(pbId int) (models.ProxyBindingBots, error)
 	Create(botId int, pbId int, sessionLength int, config map[string]interface{}) models.ProxyBindingBots
+	GetByIdIn(ids map[int]int) []models.ProxyBindingBots
 }
 
 type ProxyBindingBotsRepository struct {
@@ -59,4 +60,16 @@ func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength in
 	c.Db.Save(&model)
 
 	return model
+}
+
+func (c ProxyBindingBotsRepository) GetByIdIn(ids map[int]int) []models.ProxyBindingBots {
+	var newIds []int
+	for _, id := range ids {
+		newIds = append(newIds, id)
+	}
+
+	var modelsList []models.ProxyBindingBots
+	c.Db.Model(models.ProxyBindingBots{}).Where("id IN ?", newIds).Find(&modelsList)
+
+	return modelsList
 }

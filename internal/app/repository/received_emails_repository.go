@@ -29,7 +29,13 @@ func (r ReceivedEmailsRepository) GetOneById(id int) (models.ReceivedEmails, err
 
 func (r ReceivedEmailsRepository) GetIn(ids []int) (map[int]models.ReceivedEmails, error) {
 	var result []models.ReceivedEmails
-	r.Db.Model(models.ReceivedEmails{}).Where("id IN (?)", ids).Find(&result)
+	//ids to []int
+	newIds := make([]int, 0)
+	for _, id := range ids {
+		newIds = append(newIds, id)
+	}
+
+	r.Db.Model(models.ReceivedEmails{}).Where("id IN (?)", newIds).Find(&result)
 	newModels := make(map[int]models.ReceivedEmails, 0)
 
 	for _, model := range result {
