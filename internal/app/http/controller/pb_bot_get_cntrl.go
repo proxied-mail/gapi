@@ -32,6 +32,7 @@ type PbBotResponseItem struct {
 	Config           interface{} `json:"config"`
 	MessagesReceived int         `json:"messages_received"`
 	MessagesSent     int         `json:"messages_sent"`
+	ExtendsId        string      `json:"extends_id"`
 }
 
 func (con PbBotGetController) Get(c echo.Context) error {
@@ -72,8 +73,9 @@ func (con PbBotGetController) Get(c echo.Context) error {
 			Status:           m.Status,
 			Config:           jsonConfig,
 			SessionLength:    m.SessionLength,
-			MessagesReceived: 0,
-			MessagesSent:     0,
+			MessagesReceived: m.MessagesReceived,
+			MessagesSent:     m.MessagesSent,
+			ExtendsId:        con.Encoder.Encode(m.BotId, "bots"),
 		})
 	}
 

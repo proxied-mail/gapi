@@ -154,6 +154,7 @@ curl --location 'http://localhost:9900/gapi/proxy-binding-bots/assign' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: ••••••' \
 --data '{
+    "bot_uid":"ai",
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
     "session_length": 30,
     "config": {
@@ -161,6 +162,7 @@ curl --location 'http://localhost:9900/gapi/proxy-binding-bots/assign' \
     }
 }'
 ```
+bot_uid could be "ai" or null.
 
 
 ### Update assigned bot
@@ -172,12 +174,16 @@ curl --location --request PATCH 'http://localhost:9900/gapi/proxy-binding-bots/b
 --data '{
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
     "session_length": 29,
-    "status": 1,
+    "status": 3,
     "config": {
         "a": "b"
     }
 }'
 ```
+Updating bot settings. Just standard response if everything is ok.
+Bot is active is the status is 3.
+Bot is not active on status 0.
+
 
 ### View 
 
@@ -185,3 +191,30 @@ curl --location --request PATCH 'http://localhost:9900/gapi/proxy-binding-bots/b
 curl --location 'http://localhost:9900/gapi/proxy-binding-bots/get?proxyBinding=4BD2D240-9000-0000-00000BAE' \
 --header 'Authorization: ••••••'
 ```
+
+Response if we have bot:
+```json
+{
+    "items": [
+        {
+            "status": 3,
+            "session_length": 30,
+            "config": {},
+            "messages_received": 0,
+            "messages_sent": 0,
+            "extends_id": "060F2000-0000-0000-00002241"
+        }
+    ]
+}
+```
+If extends is not null - we have an Ai bot.
+
+Response if we don't have a bot:
+```json
+{
+    "items": null
+}
+```
+
+Note: it's not possible to upgrade some of the bot params if it has the received messages.
+This parameters is 
