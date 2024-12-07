@@ -13,8 +13,8 @@ type ReceivedEmailDTO struct {
 	Sender           string        `json:"sender"`
 	Recipient        string        `json:"recipient"`
 	Subject          string        `json:"subject"`
-	BodyHtml         string        `json:"bodyHtml"`
-	BodyPlain        string        `json:"bodyPlain"`
+	BodyHtml         string        `json:"body-html"`
+	BodyPlain        string        `json:"body-plain"`
 	Attachments      []Attachments `json:"attachments"`
 }
 
