@@ -20,6 +20,7 @@ type PbBotGetController struct {
 	entityId.Encoder
 	repository.ProxyBindingRepository
 	repository.ProxyBindingBotsRepositoryInterface
+	repository.BotsRepositoryInterface
 }
 
 type PbBotResponse struct {
@@ -32,7 +33,7 @@ type PbBotResponseItem struct {
 	Config           interface{} `json:"config"`
 	MessagesReceived int         `json:"messages_received"`
 	MessagesSent     int         `json:"messages_sent"`
-	ExtendsId        string      `json:"extends_id"`
+	ExtendsUid       string      `json:"extends_bot_uid"`
 }
 
 func (con PbBotGetController) Get(c echo.Context) error {
@@ -69,13 +70,19 @@ func (con PbBotGetController) Get(c echo.Context) error {
 		var jsonConfig interface{}
 		json.Unmarshal([]byte(m.Config.String), &jsonConfig)
 
+		botUid := ""
+		if m.BotId > 0 {
+			botModel := con.BotsRepositoryInterface.GetById(m.BotId)
+			botUid = botModel.Uid
+		}
+
 		rsp.Items = append(rsp.Items, PbBotResponseItem{
 			Status:           m.Status,
 			Config:           jsonConfig,
 			SessionLength:    m.SessionLength,
 			MessagesReceived: m.MessagesReceived,
 			MessagesSent:     m.MessagesSent,
-			ExtendsId:        con.Encoder.Encode(m.BotId, "bots"),
+			ExtendsUid:       botUid,
 		})
 	}
 

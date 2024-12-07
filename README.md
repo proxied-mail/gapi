@@ -202,12 +202,12 @@ Response if we have bot:
             "config": {},
             "messages_received": 0,
             "messages_sent": 0,
-            "extends_id": "060F2000-0000-0000-00002241"
+            "extends_bot_uid": "ai"
         }
     ]
 }
 ```
-If extends is not null - we have an Ai bot.
+If extends_bot_uid is not null - we have an Ai bot. Or any other external bot.
 
 Response if we don't have a bot:
 ```json
@@ -217,4 +217,5 @@ Response if we don't have a bot:
 ```
 
 Note: it's not possible to upgrade some of the bot params if it has the received messages.
-This parameters is 
+This parameters is bot_uid and maybe something else.
+Status we can change without any restrictions.
