@@ -13,7 +13,14 @@ import (
 type ProxyBindingBotsRepositoryInterface interface {
 	GetById(id int) (models.ProxyBindingBots, error)
 	GetByPbId(pbId int) (models.ProxyBindingBots, error)
-	Create(botId int, pbId int, sessionLength int, config map[string]interface{}) models.ProxyBindingBots
+	Create(
+		botId int,
+		pbId int,
+		sessionLength int,
+		config map[string]interface{},
+		demandCc bool,
+		allowInterruption bool,
+	) models.ProxyBindingBots
 	GetByIdIn(ids map[int]int) []models.ProxyBindingBots
 }
 
@@ -44,7 +51,14 @@ func (c ProxyBindingBotsRepository) GetByPbId(pbId int) (models.ProxyBindingBots
 	return model, nil
 }
 
-func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength int, config map[string]interface{}) models.ProxyBindingBots {
+func (c ProxyBindingBotsRepository) Create(
+	botId int,
+	pbId int,
+	sessionLength int,
+	config map[string]interface{},
+	demandCc bool,
+	allowInterruption bool,
+) models.ProxyBindingBots {
 
 	json3, _ := json.Marshal(config)
 
@@ -54,6 +68,8 @@ func (c ProxyBindingBotsRepository) Create(botId int, pbId int, sessionLength in
 	model.Config = sql.NullString{String: string(json3), Valid: true}
 	model.ProxyBindingId = pbId
 	model.SessionLength = sessionLength
+	model.DemandCc = demandCc
+	model.AllowInterruption = allowInterruption
 	model.CreatedAt = time.Now()
 	model.UpdatedAt = time.Now()
 

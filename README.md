@@ -157,8 +157,11 @@ curl --location 'http://localhost:9900/gapi/proxy-binding-bots/assign' \
     "bot_uid":"ai",
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
     "session_length": 30,
+    "allow_interruption": false,
+    "demand_cc": false,
     "config": {
-        "a": "b"
+        "prompt": "b",
+        "model":"gpt-3.5-turbo"
     }
 }'
 ```
@@ -175,8 +178,11 @@ curl --location --request PATCH 'http://localhost:9900/gapi/proxy-binding-bots/b
     "proxy_binding_id": "4BD2D240-9000-0000-00000BAE",
     "session_length": 29,
     "status": 3,
+    "allow_interruption": false,
+    "demand_cc": false,
     "config": {
-        "a": "b"
+        "prompt": "b",
+        "model":"gpt-3.5-turbo"
     }
 }'
 ```
@@ -202,7 +208,9 @@ Response if we have bot:
             "config": {},
             "messages_received": 0,
             "messages_sent": 0,
-            "extends_bot_uid": "ai"
+            "extends_bot_uid": "ai",
+            "allow_interruption": false,
+          "demand_cc": false
         }
     ]
 }

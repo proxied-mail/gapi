@@ -67,6 +67,8 @@ func (abs UpdateBotService) UpdateBot(
 	m.Status = request.Status
 	m.Config = sql.NullString{String: string(json3), Valid: true}
 	m.SessionLength = request.SessionLength
+	m.DemandCc = request.DemandCc
+	m.AllowInterruption = request.AllowInterruption
 	m.BotId = botId
 	abs.DB.Save(&m)
 

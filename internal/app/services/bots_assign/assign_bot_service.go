@@ -58,7 +58,14 @@ func (abs AssignBotService) AssignBot(
 		return model, errors.New("bot is already exists")
 	}
 
-	newModel := abs.ProxyBindingBotsRepositoryInterface.Create(botId, pbModel.Id, request.SessionLength, request.Config)
+	newModel := abs.ProxyBindingBotsRepositoryInterface.Create(
+		botId,
+		pbModel.Id,
+		request.SessionLength,
+		request.Config,
+		request.DemandCc,
+		request.AllowInterruption,
+	)
 
 	return newModel, nil
 }
