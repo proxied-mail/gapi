@@ -28,12 +28,14 @@ type PbBotResponse struct {
 }
 
 type PbBotResponseItem struct {
-	Status           int         `json:"status"`
-	SessionLength    int         `json:"session_length"`
-	Config           interface{} `json:"config"`
-	MessagesReceived int         `json:"messages_received"`
-	MessagesSent     int         `json:"messages_sent"`
-	ExtendsUid       string      `json:"extends_bot_uid"`
+	Status            int         `json:"status"`
+	SessionLength     int         `json:"session_length"`
+	Config            interface{} `json:"config"`
+	MessagesReceived  int         `json:"messages_received"`
+	MessagesSent      int         `json:"messages_sent"`
+	ExtendsUid        string      `json:"extends_bot_uid"`
+	DemandCc          bool        `json:"demand_cc"`
+	AllowInterruption bool        `json:"allow_interruption"`
 }
 
 func (con PbBotGetController) Get(c echo.Context) error {
@@ -77,12 +79,14 @@ func (con PbBotGetController) Get(c echo.Context) error {
 		}
 
 		rsp.Items = append(rsp.Items, PbBotResponseItem{
-			Status:           m.Status,
-			Config:           jsonConfig,
-			SessionLength:    m.SessionLength,
-			MessagesReceived: m.MessagesReceived,
-			MessagesSent:     m.MessagesSent,
-			ExtendsUid:       botUid,
+			Status:            m.Status,
+			Config:            jsonConfig,
+			SessionLength:     m.SessionLength,
+			MessagesReceived:  m.MessagesReceived,
+			MessagesSent:      m.MessagesSent,
+			ExtendsUid:        botUid,
+			DemandCc:          m.DemandCc,
+			AllowInterruption: m.AllowInterruption,
 		})
 	}
 
