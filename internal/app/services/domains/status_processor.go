@@ -15,6 +15,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -117,7 +118,7 @@ func (sps StatusProcessorService) checkDkim(domain *domains.DomainResponse) int 
 }
 
 func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
-	txts, _ := sps.getResolver().LookupTXT(context.Background(), domain.Domain)
+	txts, _ := sps.getTXTRecords(domain.Domain)
 
 	for _, txt := range txts {
 
@@ -133,13 +134,30 @@ func (sps StatusProcessorService) checkSpf(domain *domains.DomainResponse) int {
 }
 
 func (sps StatusProcessorService) getResolver() *net.Resolver {
+	servers := []string{"8.8.8.8:53", "1.1.1.1:53"}
+	timeout := 2 * time.Second
+
 	r := &net.Resolver{
 		PreferGo: true,
 		Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-			d := net.Dialer{
-				Timeout: time.Millisecond * time.Duration(10000),
+			done := make(chan net.Conn, 1)
+
+			for _, server := range servers {
+				go func(server string) {
+					d := net.Dialer{Timeout: timeout}
+					conn, err := d.DialContext(ctx, network, server)
+					if err == nil {
+						done <- conn
+					}
+				}(server)
 			}
-			return d.DialContext(ctx, network, "8.8.8.8:53")
+
+			select {
+			case conn := <-done:
+				return conn, nil
+			case <-time.After(timeout):
+				return nil, fmt.Errorf("timeout resolving DNS")
+			}
 		},
 	}
 
@@ -184,7 +202,7 @@ func (sps StatusProcessorService) lookupMX2(ctx context.Context, domain string) 
 }
 
 func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse) (int, error) {
-	txts, _ := sps.getResolver().LookupTXT(context.Background(), domain.Domain)
+	txts, _ := sps.getTXTRecords(domain.Domain)
 	txtStartWith := "proxiedmail-verification="
 
 	for _, txt := range txts {
@@ -206,6 +224,77 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 	}
 
 	return domain.Status, nil
+}
+
+func (sps StatusProcessorService) getTXTRecords(domain string) ([]string, error) {
+	servers := []string{"8.8.8.8:53", "1.1.1.1:53", "9.9.9.9:53"}
+	timeout := 2 * time.Second
+
+	var wg sync.WaitGroup
+	results := make(chan []string, len(servers))
+	errorsList := make(chan error, len(servers))
+
+	// Query each DNS server concurrently
+	for _, server := range servers {
+		wg.Add(1)
+		go func(server string) {
+			defer wg.Done()
+
+			r := &net.Resolver{
+				PreferGo: true,
+				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
+					d := net.Dialer{Timeout: timeout}
+					return d.DialContext(ctx, network, server)
+				},
+			}
+
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
+
+			txts, err := r.LookupTXT(ctx, domain)
+			if err != nil {
+				errorsList <- err
+				return
+			}
+
+			results <- txts
+		}(server)
+	}
+
+	// Wait for all queries to complete
+	go func() {
+		wg.Wait()
+		close(results)
+		close(errorsList)
+	}()
+
+	// Collect results
+	var allRecords []string
+	var lastError error
+
+	for res := range results {
+		allRecords = append(allRecords, res...)
+	}
+	for err := range errorsList {
+		lastError = err
+	}
+
+	// Deduplicate records (optional)
+	uniqueRecords := make(map[string]struct{})
+	for _, record := range allRecords {
+		uniqueRecords[record] = struct{}{}
+	}
+
+	mergedRecords := make([]string, 0, len(uniqueRecords))
+	for record := range uniqueRecords {
+		mergedRecords = append(mergedRecords, record)
+	}
+
+	if len(mergedRecords) == 0 && lastError != nil {
+		return nil, lastError
+	}
+
+	return mergedRecords, nil
 }
 
 func GetMD5Hash(text string) string {
