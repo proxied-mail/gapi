@@ -227,7 +227,15 @@ func (sps StatusProcessorService) checkOwnership(domain *domains.DomainResponse)
 }
 
 func (sps StatusProcessorService) getTXTRecords(domain string) ([]string, error) {
-	servers := []string{"8.8.8.8:53", "1.1.1.1:53", "9.9.9.9:53"}
+	servers := []string{
+		"8.8.8.8:53", "8.8.4.4:53", // Google Public DNS
+		"1.1.1.1:53", "1.0.0.1:53", // Cloudflare DNS
+		"9.9.9.9:53", "149.112.112.112:53", // Quad9 DNS
+		"208.67.222.222:53", "208.67.220.220:53", // OpenDNS
+		"185.228.168.9:53", "185.228.169.9:53", // CleanBrowsing
+		"94.140.14.14:53", "94.140.15.15:53", // AdGuard DNS
+	}
+
 	timeout := 2 * time.Second
 
 	var wg sync.WaitGroup
